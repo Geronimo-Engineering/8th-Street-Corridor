@@ -1,82 +1,66 @@
-# Redwood Creek Map
+# 8th Street Stormwater Survey Map
 
-Interactive web map for the Redwood Creek restoration project at 5750 Redwood Road, Oakland, CA. Built with Leaflet.js as a static site — no server-side dependencies, just clone and serve.
+Interactive Leaflet.js field map documenting stormwater flooding along the **8th Street corridor in Oakland, CA**. Field photos from January 4, 2026.
 
 ## Features
 
-- **Layer toggles** — turn individual layers on/off from the side panel
-- **V1 / V2 switcher** — compare two versions of the creek bank and centerline geometry
-- **Basemaps** — toggle between OpenStreetMap and ESRI Satellite
-- **Compass rotation** — drag the compass rose to rotate the map to any bearing; click to snap back to north
-- **Right-click coordinates** — right-click anywhere to get lat/lng and copy to clipboard
-- **Geolocation** — crosshair button (bottom-left) tracks your live GPS position on the map
-
-## Layers
-
-| Layer | Source |
-|---|---|
-| Creek Bank | Field survey shapefile |
-| Creek Survey / Centerline | Field survey shapefile |
-| Sewer Manhole | City infrastructure data |
-| Sewer Lamphole | City infrastructure data |
-| Outfall | Field survey shapefile |
-| Creek Restoration Area | Project boundary shapefile |
-| 300ft Radius | Project buffer shapefile |
-| Inlets | City drainage dataset (filtered to project area) |
-| Oak Drains | City drainage dataset (filtered to project area) |
-| Elevation | GDAL hillshade derived from LiDAR surface model |
-
-## Project Structure
-
-```
-redwood-creek-map/
-├── index.html          # Full map application (single file)
-├── data/               # GeoJSON exports of all vector layers
-│   ├── creek_bank_v1.geojson
-│   ├── creek_bank_v2.geojson
-│   ├── creek_survey_v1.geojson
-│   ├── creek_centerline_v2.geojson
-│   ├── creek_restoration_area.geojson
-│   ├── buffer_300ft.geojson
-│   ├── outfall.geojson
-│   ├── sewer_manhole.geojson
-│   ├── sewer_lamphole.geojson
-│   ├── inlets.geojson
-│   └── oak_drains.geojson
-└── tiles/
-    └── redwood_rd_surface/   # XYZ tiles for elevation hillshade (zoom 14-20)
-```
+- **Field photo layer** — 48 geo-tagged photos placed as camera markers along the corridor (Laney College → 536 8th St)
+- **Lightbox viewer** — tap any marker to open a full-screen photo; swipe down to close, pinch to zoom on mobile
+- **Marker clustering** — dense photo groups cluster automatically; zoom in or tap to expand
+- **Address / coordinate search** — floating search bar; accepts street addresses or `lat, lng` pairs; drops a pulsing pin and flies to the result
+- **Basemap toggle** — CartoDB Voyager (clean, no business clutter) and ESRI Satellite
+- **Compass rose** — drag to rotate the map, click to snap back to north
+- **Geolocation** — crosshair button tracks your live GPS position
+- **Right-click coordinates** — right-click anywhere to copy lat/lng to clipboard
+- **Mobile-responsive** — panel collapses to a slide-in drawer on narrow screens; larger touch targets, swipe/pinch gestures throughout
 
 ## Running Locally
 
-Requires any static file server (the map uses `fetch()` so it won't work from `file://`).
+Requires a local HTTP server (`fetch()` won't work from `file://`).
 
-**Node.js:**
 ```bash
+# Python — no install needed
+python -m http.server 8080
+
+# or Node
 npx serve .
 ```
 
-**Python (via QGIS OSGeo4W):**
-```bash
-"C:\Users\...\OSGeo4W\bin\python3.exe" -m http.server 8080
+Open **http://localhost:8080**.
+
+## Deploying to GitHub Pages
+
+1. Push this repo to GitHub
+2. Go to **Settings → Pages → Source → Deploy from branch → main / (root)**
+3. Live at `https://<your-username>.github.io/<repo-name>/`
+
+## File Structure
+
+```
+index.html                        — Single-file static map app
+data/
+  photos.json                     — GeoJSON FeatureCollection (48 photo points)
+photos_01042026/
+  01042026/                       — 48 JPGs with GPS address overlays (mapped)
+  images without address/         — 12 JPEGs without location data (not plotted)
+photos_02042025/
+  02042025/                       — 27 JPEGs without location data (not plotted)
 ```
 
-Then open `http://localhost:8080` (or the port shown).
+## Tech Stack
 
-## Deploying to a Server
+| Library | Version | Purpose |
+|---|---|---|
+| [Leaflet.js](https://leafletjs.com/) | 1.9.4 | Map rendering |
+| [leaflet-rotate](https://github.com/fnicollet/leaflet-rotate) | 0.2.8 | Compass / map rotation |
+| [Leaflet.markercluster](https://github.com/Leaflet/Leaflet.markercluster) | 1.5.3 | Photo clustering |
+| [CartoDB Voyager](https://carto.com/basemaps/) | — | Default basemap (no API key) |
+| [ESRI World Imagery](https://www.esri.com/) | — | Satellite basemap (no API key) |
+| [Nominatim](https://nominatim.openstreetmap.org/) | — | Address geocoding (no API key) |
 
-Clone the repo into your web root and serve as static files:
+No build step — pure HTML/CSS/JS.
 
-```bash
-git clone https://github.com/marbalino/Redwood-Creek.git /var/www/html/redwood-creek
-```
+## Notes
 
-No build step required. Works with nginx, Apache, or any static host.
-
-## Data Notes
-
-- All vector layers are in **EPSG:4326** (WGS84)
-- Source shapefiles use **EPSG:2227** (NAD83 / California Zone 3, US survey feet)
-- Elevation tiles are hillshade-rendered from a LiDAR-derived surface model
-- Inlet and drain datasets are filtered to the project bounding box — full Oakland datasets not included
-- Geolocation requires **HTTPS** in production (works on localhost without it)
+- Photo coordinates are geocoded from the address text burned into each image by the iPhone camera app
+- Live GPS tracking requires **HTTPS** in production (works on localhost without it)

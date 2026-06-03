@@ -9,3 +9,6 @@ Thumbs.db
 # Large source rasters (keep tiles, not originals)
 *.tif
 *.tiff
+
+# Source zip archives (photos already extracted to folders)
+*.zip
