@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Redwood Creek</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    #map { height: 100vh; width: 100%; }
+
+    #panel {
+      position: absolute;
+      top: 12px; right: 12px;
+      z-index: 1000;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      width: 220px;
+      overflow: hidden;
+    }
+    #panel h2 {
+      background: #2c5f2e;
+      color: #fff;
+      padding: 10px 14px;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .version-bar {
+      display: flex;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .version-bar button {
+      flex: 1;
+      padding: 7px 0;
+      border: none;
+      background: #f5f5f5;
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .version-bar button.active {
+      background: #fff;
+      color: #2c5f2e;
+      border-bottom: 2px solid #2c5f2e;
+    }
+    .version-bar button:hover:not(.active) { background: #eaeaea; }
+
+    .locate-btn {
+      position: absolute;
+      bottom: 30px; left: 12px;
+      z-index: 1000;
+      background: #fff;
+      border: none;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      width: 36px; height: 36px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .locate-btn:hover { background: #f0f0f0; }
+    .locate-btn.active { background: #e8f4ea; }
+    .locate-btn svg { width: 18px; height: 18px; }
+
+    #compass {
+      position: absolute;
+      bottom: 76px; left: 12px;
+      z-index: 1000;
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      cursor: grab;
+      display: flex; align-items: center; justify-content: center;
+      user-select: none;
+      touch-action: none;
+    }
+    #compass:active { cursor: grabbing; }
+    #compass-inner {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 1.5px solid #ddd;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.1s linear;
+    }
+    .needle-n {
+      position: absolute; top: 1px;
+      width: 0; height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 14px solid #c0392b;
+      left: 50%; transform: translateX(-50%);
+    }
+    .needle-s {
+      position: absolute; bottom: 1px;
+      width: 0; height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 14px solid #aaa;
+      left: 50%; transform: translateX(-50%);
+    }
+    .needle-label {
+      position: absolute; top: -1px;
+      font-size: 8px; font-weight: 700;
+      color: #c0392b; left: 50%;
+      transform: translateX(-50%) translateY(-110%);
+    }
+    .group-label {
+      padding: 6px 14px 2px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .layer-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .layer-row:hover { background: #f5f5f5; }
+    .layer-row input { cursor: pointer; accent-color: #2c5f2e; }
+    .swatch {
+      width: 14px; height: 14px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .layer-row label { font-size: 12px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div id="compass" title="Drag to rotate map · Click to reset north">
+  <div id="compass-inner">
+    <div class="needle-n"></div>
+    <div class="needle-s"></div>
+    <span class="needle-label">N</span>
+  </div>
+</div>
+
+<button class="locate-btn" id="locate-btn" title="Show my location" onclick="toggleLocate()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#2c5f2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+    <circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/>
+  </svg>
+</button>
+
+<div id="panel">
+  <h2>Redwood Creek</h2>
+
+  <div class="version-bar">
+    <button id="btn-v1" onclick="switchVersion(1)">V1</button>
+    <button id="btn-v2" class="active" onclick="switchVersion(2)">V2</button>
+  </div>
+
+  <div class="group-label">Basemaps</div>
+  <div class="layer-row"><input type="radio" name="base" id="r-osm" checked /><label for="r-osm">OpenStreetMap</label></div>
+  <div class="layer-row"><input type="radio" name="base" id="r-sat" /><label for="r-sat">ESRI Satellite</label></div>
+
+  <div class="group-label">Rasters</div>
+  <div class="layer-row"><input type="checkbox" id="t-hillshade" checked /><div class="swatch" style="background:#8a8a8a;opacity:0.6"></div><label for="t-hillshade">Elevation</label></div>
+
+  <div class="group-label">Survey</div>
+  <div class="layer-row"><input type="checkbox" id="l-creek-bank" checked /><div class="swatch" style="background:#1a73e8"></div><label for="l-creek-bank">Creek Bank</label></div>
+  <div class="layer-row"><input type="checkbox" id="l-creek-survey" checked /><div class="swatch" style="background:#00b4d8"></div><label for="l-creek-survey">Creek Survey</label></div>
+  <div class="group-label">Drainage</div>
+  <div class="layer-row"><input type="checkbox" id="l-inlets" checked /><div class="swatch" style="background:#2980b9;border-radius:50%"></div><label for="l-inlets">Inlets</label></div>
+  <div class="layer-row"><input type="checkbox" id="l-drains" checked /><div class="swatch" style="background:#16a085;border-radius:50%"></div><label for="l-drains">Oak Drains</label></div>
+
+  <div class="group-label">Infrastructure</div>
+  <div class="layer-row"><input type="checkbox" id="l-manhole" checked /><div class="swatch" style="background:#e67e22;border-radius:50%"></div><label for="l-manhole">Sewer Manhole</label></div>
+  <div class="layer-row"><input type="checkbox" id="l-lamphole" checked /><div class="swatch" style="background:#f1c40f;border-radius:50%"></div><label for="l-lamphole">Sewer Lamphole</label></div>
+  <div class="layer-row"><input type="checkbox" id="l-outfall" checked /><div class="swatch" style="background:#e74c3c;border-radius:50%"></div><label for="l-outfall">Outfall</label></div>
+
+  <div class="group-label">Project</div>
+  <div class="layer-row"><input type="checkbox" id="l-restoration" checked /><div class="swatch" style="background:#27ae60;opacity:0.5"></div><label for="l-restoration">Restoration Area</label></div>
+  <div class="layer-row"><input type="checkbox" id="l-buffer" checked /><div class="swatch" style="background:#9b59b6;opacity:0.5;border:2px dashed #9b59b6"></div><label for="l-buffer">300ft Radius</label></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"></script>
+<script>
+// ── Basemaps ──────────────────────────────────────────────────────────────────
+const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxNativeZoom: 19, maxZoom: 20, attribution: '© OpenStreetMap contributors'
+});
+const sat = L.tileLayer(
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  { maxZoom: 20, attribution: 'Tiles © Esri' }
+);
+
+// ── Map init ──────────────────────────────────────────────────────────────────
+const map = L.map('map', { layers: [osm], zoomControl: true, rotate: true, rotateControl: false }).setView([37.83, -122.17], 16);
+
+// ── Raster tile overlays ──────────────────────────────────────────────────────
+const hillshade = L.tileLayer('tiles/redwood_rd_surface/{z}/{x}/{y}.png', {
+  maxNativeZoom: 20, maxZoom: 20, opacity: 0.5, tms: true
+});
+
+// ── Vector style helpers ──────────────────────────────────────────────────────
+const lineStyle = color => ({ color, weight: 2, opacity: 0.9 });
+const fillStyle = (color, fill) => ({ color, weight: 1.5, opacity: 0.9, fillColor: fill || color, fillOpacity: 0.25 });
+const dotMarker = (color, r=5) => L.circleMarker.bind(null, undefined, { radius: r, color, weight: 1.5, fillColor: color, fillOpacity: 0.85 });
+
+// ── Vector layers ─────────────────────────────────────────────────────────────
+let layers = {};
+let activeVersion = 2;
+
+async function loadGeoJSON(path, style, isPoint) {
+  const r = await fetch(path);
+  const data = await r.json();
+  if (isPoint) {
+    return L.geoJSON(data, { pointToLayer: (f, ll) => L.circleMarker(ll, style), onEachFeature: popup });
+  }
+  return L.geoJSON(data, { style: () => style, onEachFeature: popup });
+}
+
+function popup(feature, layer) {
+  if (!feature.properties) return;
+  const rows = Object.entries(feature.properties)
+    .filter(([,v]) => v !== null && v !== '')
+    .map(([k,v]) => `<tr><td style="padding:2px 6px 2px 0;color:#666;font-size:11px">${k}</td><td style="font-size:11px">${v}</td></tr>`)
+    .join('');
+  if (rows) layer.bindPopup(`<table>${rows}</table>`);
+}
+
+const pointStyle = (color, r=5) => ({ radius: r, color, weight: 1.5, fillColor: color, fillOpacity: 0.85 });
+
+async function initLayers() {
+  // Load both versions of creek bank and centerline up front
+  layers = {
+    creekBank_v1:  await loadGeoJSON('data/creek_bank_v1.geojson',         lineStyle('#1a73e8')),
+    creekBank_v2:  await loadGeoJSON('data/creek_bank_v2.geojson',         lineStyle('#1a73e8')),
+    creekSurvey_v1:await loadGeoJSON('data/creek_survey_v1.geojson',       lineStyle('#00b4d8')),
+    creekSurvey_v2:await loadGeoJSON('data/creek_centerline_v2.geojson',   lineStyle('#00b4d8')),
+    manhole:       await loadGeoJSON('data/sewer_manhole.geojson',         pointStyle('#e67e22', 6), true),
+    lamphole:      await loadGeoJSON('data/sewer_lamphole.geojson',        pointStyle('#f1c40f', 5), true),
+    outfall:       await loadGeoJSON('data/outfall.geojson',               pointStyle('#e74c3c', 7), true),
+    inlets:        await loadGeoJSON('data/inlets.geojson',    pointStyle('#2980b9', 4), true),
+    drains:        await loadGeoJSON('data/oak_drains.geojson', pointStyle('#16a085', 4), true),
+    restoration:   await loadGeoJSON('data/creek_restoration_area.geojson',fillStyle('#27ae60')),
+    buffer300:     await loadGeoJSON('data/buffer_300ft.geojson',          { color:'#9b59b6', weight:2, dashArray:'6 4', fillColor:'#9b59b6', fillOpacity:0.08 }),
+  };
+
+  // Start on v2
+  layers.creekBank_v2.addTo(map);
+  layers.creekSurvey_v2.addTo(map);
+  ['inlets','drains','manhole','lamphole','outfall','restoration','buffer300'].forEach(k => layers[k].addTo(map));
+  hillshade.addTo(map);
+
+  map.fitBounds(layers.creekBank_v2.getBounds().pad(0.3));
+}
+
+initLayers();
+
+// ── Version switcher ──────────────────────────────────────────────────────────
+function switchVersion(v) {
+  if (v === activeVersion) return;
+  activeVersion = v;
+
+  const bankVisible  = document.getElementById('l-creek-bank').checked;
+  const lineVisible  = document.getElementById('l-creek-survey').checked;
+  const prev = v === 2 ? 1 : 2;
+
+  map.removeLayer(layers[`creekBank_v${prev}`]);
+  map.removeLayer(layers[`creekSurvey_v${prev}`]);
+  if (bankVisible) layers[`creekBank_v${v}`].addTo(map);
+  if (lineVisible) layers[`creekSurvey_v${v}`].addTo(map);
+
+  document.getElementById('btn-v1').classList.toggle('active', v === 1);
+  document.getElementById('btn-v2').classList.toggle('active', v === 2);
+}
+
+// ── Basemap radio buttons ─────────────────────────────────────────────────────
+document.getElementById('r-osm').addEventListener('change', () => { map.removeLayer(sat); osm.addTo(map); });
+document.getElementById('r-sat').addEventListener('change', () => { map.removeLayer(osm); sat.addTo(map); });
+
+// ── Raster checkboxes ─────────────────────────────────────────────────────────
+function bindTile(id, tileLayer) {
+  document.getElementById(id).addEventListener('change', e => {
+    e.target.checked ? tileLayer.addTo(map) : map.removeLayer(tileLayer);
+  });
+}
+bindTile('t-hillshade', hillshade);
+
+// ── Vector checkboxes ─────────────────────────────────────────────────────────
+function bindVector(id, key) {
+  document.getElementById(id).addEventListener('change', e => {
+    if (!layers[key]) return;
+    e.target.checked ? layers[key].addTo(map) : map.removeLayer(layers[key]);
+  });
+}
+
+// Creek bank/survey respect active version
+document.getElementById('l-creek-bank').addEventListener('change', e => {
+  const lyr = layers[`creekBank_v${activeVersion}`];
+  e.target.checked ? lyr.addTo(map) : map.removeLayer(lyr);
+});
+document.getElementById('l-creek-survey').addEventListener('change', e => {
+  const lyr = layers[`creekSurvey_v${activeVersion}`];
+  e.target.checked ? lyr.addTo(map) : map.removeLayer(lyr);
+});
+
+bindVector('l-inlets',      'inlets');
+bindVector('l-drains',      'drains');
+bindVector('l-manhole',     'manhole');
+bindVector('l-lamphole',    'lamphole');
+bindVector('l-outfall',     'outfall');
+bindVector('l-restoration', 'restoration');
+bindVector('l-buffer',      'buffer300');
+
+// ── Compass rotation ──────────────────────────────────────────────────────────
+const compass     = document.getElementById('compass');
+const compassInner = document.getElementById('compass-inner');
+let dragging = false;
+let didDrag  = false;
+
+function getBearingFromEvent(e) {
+  const rect = compass.getBoundingClientRect();
+  const cx = rect.left + rect.width  / 2;
+  const cy = rect.top  + rect.height / 2;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return Math.atan2(clientX - cx, cy - clientY) * 180 / Math.PI;
+}
+
+function updateCompass(bearing) {
+  compassInner.style.transform = `rotate(${-bearing}deg)`;
+}
+
+compass.addEventListener('mousedown',  e => { dragging = true; didDrag = false; e.preventDefault(); });
+compass.addEventListener('touchstart', e => { dragging = true; didDrag = false; }, { passive: true });
+
+window.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  didDrag = true;
+  const b = getBearingFromEvent(e);
+  map.setBearing(b);
+  updateCompass(b);
+});
+window.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  didDrag = true;
+  const b = getBearingFromEvent(e);
+  map.setBearing(b);
+  updateCompass(b);
+}, { passive: true });
+
+window.addEventListener('mouseup',  () => { dragging = false; });
+window.addEventListener('touchend', () => { dragging = false; });
+
+compass.addEventListener('click', () => {
+  if (didDrag) return;
+  map.setBearing(0);
+  updateCompass(0);
+});
+
+// ── Right-click coordinates ───────────────────────────────────────────────────
+map.on('contextmenu', e => {
+  const lat = e.latlng.lat.toFixed(6);
+  const lng = e.latlng.lng.toFixed(6);
+  const text = `${lat}, ${lng}`;
+
+  navigator.clipboard.writeText(text).catch(() => {});
+
+  L.popup({ closeButton: true, className: 'coords-popup' })
+    .setLatLng(e.latlng)
+    .setContent(`
+      <div style="font-size:12px;line-height:1.6">
+        <div><b>Coordinates</b></div>
+        <div style="font-family:monospace;margin:4px 0">${text}</div>
+        <div style="font-size:10px;color:#888">Copied to clipboard</div>
+      </div>`)
+    .openOn(map);
+});
+
+// ── Geolocation ───────────────────────────────────────────────────────────────
+let locating = false;
+let locationMarker = null;
+let locationCircle = null;
+
+function toggleLocate() {
+  if (locating) {
+    map.stopLocate();
+    locating = false;
+    document.getElementById('locate-btn').classList.remove('active');
+    if (locationMarker) { map.removeLayer(locationMarker); locationMarker = null; }
+    if (locationCircle) { map.removeLayer(locationCircle); locationCircle = null; }
+    return;
+  }
+  locating = true;
+  document.getElementById('locate-btn').classList.add('active');
+  map.locate({ watch: true, enableHighAccuracy: true });
+}
+
+map.on('locationfound', e => {
+  if (locationMarker) {
+    locationMarker.setLatLng(e.latlng);
+    locationCircle.setLatLng(e.latlng).setRadius(e.accuracy);
+  } else {
+    locationCircle = L.circle(e.latlng, {
+      radius: e.accuracy,
+      color: '#2c5f2e', fillColor: '#2c5f2e', fillOpacity: 0.12, weight: 1
+    }).addTo(map);
+    locationMarker = L.circleMarker(e.latlng, {
+      radius: 7, color: '#fff', weight: 2,
+      fillColor: '#2c5f2e', fillOpacity: 1
+    }).addTo(map).bindPopup(`<b>You are here</b><br>Accuracy: ±${Math.round(e.accuracy)} m`);
+    map.setView(e.latlng, Math.max(map.getZoom(), 17));
+  }
+});
+
+map.on('locationerror', e => {
+  locating = false;
+  document.getElementById('locate-btn').classList.remove('active');
+  alert('Location unavailable: ' + e.message);
+});
+</script>
+</body>
+</html>
