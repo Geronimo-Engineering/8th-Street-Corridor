@@ -6,6 +6,8 @@
   <title>8th Street</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
@@ -115,6 +117,24 @@
       flex-shrink: 0;
     }
     .layer-row label { font-size: 12px; cursor: pointer; }
+
+    .camera-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px;
+      background: #1a56a0;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+      font-size: 14px;
+      line-height: 1;
+    }
+    .leaflet-popup-content img { border-radius: 4px; display: block; }
+    .leaflet-popup-content .pop-caption {
+      font-size: 12px; font-weight: 600; margin-top: 6px; color: #222;
+    }
+    .leaflet-popup-content .pop-ts {
+      font-size: 11px; color: #888; margin-top: 2px;
+    }
   </style>
 </head>
 <body>
@@ -143,10 +163,18 @@
   <div class="group-label">Basemaps</div>
   <div class="layer-row"><input type="radio" name="base" id="r-osm" checked /><label for="r-osm">OpenStreetMap</label></div>
   <div class="layer-row"><input type="radio" name="base" id="r-sat" /><label for="r-sat">ESRI Satellite</label></div>
+
+  <div class="group-label">Layers</div>
+  <div class="layer-row">
+    <input type="checkbox" id="chk-photos" checked />
+    <span class="swatch" style="background:#1a56a0;border-radius:50%"></span>
+    <label for="chk-photos">Field Photos</label>
+  </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script>
 // ── Basemaps ──────────────────────────────────────────────────────────────────
 const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -269,6 +297,40 @@ map.on('locationerror', e => {
   locating = false;
   document.getElementById('locate-btn').classList.remove('active');
   alert('Location unavailable: ' + e.message);
+});
+
+// ── Photo layer ───────────────────────────────────────────────────────────────
+const cameraIcon = L.divIcon({
+  className: '',
+  html: '<div class="camera-icon">📷</div>',
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
+  popupAnchor: [0, -16]
+});
+
+const photoCluster = L.markerClusterGroup({ maxClusterRadius: 40 });
+
+fetch('data/photos.json')
+  .then(r => r.json())
+  .then(geojson => {
+    L.geoJSON(geojson, {
+      pointToLayer(feature, latlng) {
+        return L.marker(latlng, { icon: cameraIcon });
+      },
+      onEachFeature(feature, layer) {
+        const p = feature.properties;
+        layer.bindPopup(`
+          <img src="${p.file}" width="300" style="max-width:100%" />
+          <div class="pop-caption">${p.caption}</div>
+          <div class="pop-ts">${p.timestamp}</div>
+        `, { maxWidth: 320 });
+      }
+    }).addTo(photoCluster);
+    photoCluster.addTo(map);
+  });
+
+document.getElementById('chk-photos').addEventListener('change', e => {
+  e.target.checked ? photoCluster.addTo(map) : map.removeLayer(photoCluster);
 });
 </script>
 </body>
