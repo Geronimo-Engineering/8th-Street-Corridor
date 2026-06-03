@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Redwood Creek</title>
+  <title>8th Street</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.css" />
   <style>
@@ -29,27 +29,6 @@
       letter-spacing: 0.5px;
       text-transform: uppercase;
     }
-    .version-bar {
-      display: flex;
-      border-bottom: 1px solid #e0e0e0;
-    }
-    .version-bar button {
-      flex: 1;
-      padding: 7px 0;
-      border: none;
-      background: #f5f5f5;
-      font-size: 12px;
-      font-weight: 600;
-      color: #555;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-    }
-    .version-bar button.active {
-      background: #fff;
-      color: #2c5f2e;
-      border-bottom: 2px solid #2c5f2e;
-    }
-    .version-bar button:hover:not(.active) { background: #eaeaea; }
 
     .locate-btn {
       position: absolute;
@@ -159,35 +138,11 @@
 </button>
 
 <div id="panel">
-  <h2>Redwood Creek</h2>
-
-  <div class="version-bar">
-    <button id="btn-v1" onclick="switchVersion(1)">V1</button>
-    <button id="btn-v2" class="active" onclick="switchVersion(2)">V2</button>
-  </div>
+  <h2>8th Street</h2>
 
   <div class="group-label">Basemaps</div>
   <div class="layer-row"><input type="radio" name="base" id="r-osm" checked /><label for="r-osm">OpenStreetMap</label></div>
   <div class="layer-row"><input type="radio" name="base" id="r-sat" /><label for="r-sat">ESRI Satellite</label></div>
-
-  <div class="group-label">Rasters</div>
-  <div class="layer-row"><input type="checkbox" id="t-hillshade" checked /><div class="swatch" style="background:#8a8a8a;opacity:0.6"></div><label for="t-hillshade">Elevation</label></div>
-
-  <div class="group-label">Survey</div>
-  <div class="layer-row"><input type="checkbox" id="l-creek-bank" checked /><div class="swatch" style="background:#1a73e8"></div><label for="l-creek-bank">Creek Bank</label></div>
-  <div class="layer-row"><input type="checkbox" id="l-creek-survey" checked /><div class="swatch" style="background:#00b4d8"></div><label for="l-creek-survey">Creek Survey</label></div>
-  <div class="group-label">Drainage</div>
-  <div class="layer-row"><input type="checkbox" id="l-inlets" checked /><div class="swatch" style="background:#2980b9;border-radius:50%"></div><label for="l-inlets">Inlets</label></div>
-  <div class="layer-row"><input type="checkbox" id="l-drains" checked /><div class="swatch" style="background:#16a085;border-radius:50%"></div><label for="l-drains">Oak Drains</label></div>
-
-  <div class="group-label">Infrastructure</div>
-  <div class="layer-row"><input type="checkbox" id="l-manhole" checked /><div class="swatch" style="background:#e67e22;border-radius:50%"></div><label for="l-manhole">Sewer Manhole</label></div>
-  <div class="layer-row"><input type="checkbox" id="l-lamphole" checked /><div class="swatch" style="background:#f1c40f;border-radius:50%"></div><label for="l-lamphole">Sewer Lamphole</label></div>
-  <div class="layer-row"><input type="checkbox" id="l-outfall" checked /><div class="swatch" style="background:#e74c3c;border-radius:50%"></div><label for="l-outfall">Outfall</label></div>
-
-  <div class="group-label">Project</div>
-  <div class="layer-row"><input type="checkbox" id="l-restoration" checked /><div class="swatch" style="background:#27ae60;opacity:0.5"></div><label for="l-restoration">Restoration Area</label></div>
-  <div class="layer-row"><input type="checkbox" id="l-buffer" checked /><div class="swatch" style="background:#9b59b6;opacity:0.5;border:2px dashed #9b59b6"></div><label for="l-buffer">300ft Radius</label></div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -203,124 +158,11 @@ const sat = L.tileLayer(
 );
 
 // ── Map init ──────────────────────────────────────────────────────────────────
-const map = L.map('map', { layers: [osm], zoomControl: true, rotate: true, rotateControl: false }).setView([37.83, -122.17], 16);
-
-// ── Raster tile overlays ──────────────────────────────────────────────────────
-const hillshade = L.tileLayer('tiles/redwood_rd_surface/{z}/{x}/{y}.png', {
-  maxNativeZoom: 20, maxZoom: 20, opacity: 0.5, tms: true
-});
-
-// ── Vector style helpers ──────────────────────────────────────────────────────
-const lineStyle = color => ({ color, weight: 2, opacity: 0.9 });
-const fillStyle = (color, fill) => ({ color, weight: 1.5, opacity: 0.9, fillColor: fill || color, fillOpacity: 0.25 });
-const dotMarker = (color, r=5) => L.circleMarker.bind(null, undefined, { radius: r, color, weight: 1.5, fillColor: color, fillOpacity: 0.85 });
-
-// ── Vector layers ─────────────────────────────────────────────────────────────
-let layers = {};
-let activeVersion = 2;
-
-async function loadGeoJSON(path, style, isPoint) {
-  const r = await fetch(path);
-  const data = await r.json();
-  if (isPoint) {
-    return L.geoJSON(data, { pointToLayer: (f, ll) => L.circleMarker(ll, style), onEachFeature: popup });
-  }
-  return L.geoJSON(data, { style: () => style, onEachFeature: popup });
-}
-
-function popup(feature, layer) {
-  if (!feature.properties) return;
-  const rows = Object.entries(feature.properties)
-    .filter(([,v]) => v !== null && v !== '')
-    .map(([k,v]) => `<tr><td style="padding:2px 6px 2px 0;color:#666;font-size:11px">${k}</td><td style="font-size:11px">${v}</td></tr>`)
-    .join('');
-  if (rows) layer.bindPopup(`<table>${rows}</table>`);
-}
-
-const pointStyle = (color, r=5) => ({ radius: r, color, weight: 1.5, fillColor: color, fillOpacity: 0.85 });
-
-async function initLayers() {
-  // Load both versions of creek bank and centerline up front
-  layers = {
-    creekBank_v1:  await loadGeoJSON('data/creek_bank_v1.geojson',         lineStyle('#1a73e8')),
-    creekBank_v2:  await loadGeoJSON('data/creek_bank_v2.geojson',         lineStyle('#1a73e8')),
-    creekSurvey_v1:await loadGeoJSON('data/creek_survey_v1.geojson',       lineStyle('#00b4d8')),
-    creekSurvey_v2:await loadGeoJSON('data/creek_centerline_v2.geojson',   lineStyle('#00b4d8')),
-    manhole:       await loadGeoJSON('data/sewer_manhole.geojson',         pointStyle('#e67e22', 6), true),
-    lamphole:      await loadGeoJSON('data/sewer_lamphole.geojson',        pointStyle('#f1c40f', 5), true),
-    outfall:       await loadGeoJSON('data/outfall.geojson',               pointStyle('#e74c3c', 7), true),
-    inlets:        await loadGeoJSON('data/inlets.geojson',    pointStyle('#2980b9', 4), true),
-    drains:        await loadGeoJSON('data/oak_drains.geojson', pointStyle('#16a085', 4), true),
-    restoration:   await loadGeoJSON('data/creek_restoration_area.geojson',fillStyle('#27ae60')),
-    buffer300:     await loadGeoJSON('data/buffer_300ft.geojson',          { color:'#9b59b6', weight:2, dashArray:'6 4', fillColor:'#9b59b6', fillOpacity:0.08 }),
-  };
-
-  // Start on v2
-  layers.creekBank_v2.addTo(map);
-  layers.creekSurvey_v2.addTo(map);
-  ['inlets','drains','manhole','lamphole','outfall','restoration','buffer300'].forEach(k => layers[k].addTo(map));
-  hillshade.addTo(map);
-
-  map.fitBounds(layers.creekBank_v2.getBounds().pad(0.3));
-}
-
-initLayers();
-
-// ── Version switcher ──────────────────────────────────────────────────────────
-function switchVersion(v) {
-  if (v === activeVersion) return;
-  activeVersion = v;
-
-  const bankVisible  = document.getElementById('l-creek-bank').checked;
-  const lineVisible  = document.getElementById('l-creek-survey').checked;
-  const prev = v === 2 ? 1 : 2;
-
-  map.removeLayer(layers[`creekBank_v${prev}`]);
-  map.removeLayer(layers[`creekSurvey_v${prev}`]);
-  if (bankVisible) layers[`creekBank_v${v}`].addTo(map);
-  if (lineVisible) layers[`creekSurvey_v${v}`].addTo(map);
-
-  document.getElementById('btn-v1').classList.toggle('active', v === 1);
-  document.getElementById('btn-v2').classList.toggle('active', v === 2);
-}
+const map = L.map('map', { layers: [osm], zoomControl: true, rotate: true, rotateControl: false }).setView([37.7993458754034, -122.2774721734447], 16);
 
 // ── Basemap radio buttons ─────────────────────────────────────────────────────
 document.getElementById('r-osm').addEventListener('change', () => { map.removeLayer(sat); osm.addTo(map); });
 document.getElementById('r-sat').addEventListener('change', () => { map.removeLayer(osm); sat.addTo(map); });
-
-// ── Raster checkboxes ─────────────────────────────────────────────────────────
-function bindTile(id, tileLayer) {
-  document.getElementById(id).addEventListener('change', e => {
-    e.target.checked ? tileLayer.addTo(map) : map.removeLayer(tileLayer);
-  });
-}
-bindTile('t-hillshade', hillshade);
-
-// ── Vector checkboxes ─────────────────────────────────────────────────────────
-function bindVector(id, key) {
-  document.getElementById(id).addEventListener('change', e => {
-    if (!layers[key]) return;
-    e.target.checked ? layers[key].addTo(map) : map.removeLayer(layers[key]);
-  });
-}
-
-// Creek bank/survey respect active version
-document.getElementById('l-creek-bank').addEventListener('change', e => {
-  const lyr = layers[`creekBank_v${activeVersion}`];
-  e.target.checked ? lyr.addTo(map) : map.removeLayer(lyr);
-});
-document.getElementById('l-creek-survey').addEventListener('change', e => {
-  const lyr = layers[`creekSurvey_v${activeVersion}`];
-  e.target.checked ? lyr.addTo(map) : map.removeLayer(lyr);
-});
-
-bindVector('l-inlets',      'inlets');
-bindVector('l-drains',      'drains');
-bindVector('l-manhole',     'manhole');
-bindVector('l-lamphole',    'lamphole');
-bindVector('l-outfall',     'outfall');
-bindVector('l-restoration', 'restoration');
-bindVector('l-buffer',      'buffer300');
 
 // ── Compass rotation ──────────────────────────────────────────────────────────
 const compass     = document.getElementById('compass');
