@@ -30,11 +30,24 @@
       font-size: 13px;
       letter-spacing: 0.5px;
       text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #panel-close {
+      display: none;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
     }
 
     .locate-btn {
       position: absolute;
-      bottom: 30px; left: 12px;
+      bottom: 80px; left: 12px;
       z-index: 1000;
       background: #fff;
       border: none;
@@ -51,7 +64,7 @@
 
     #compass {
       position: absolute;
-      bottom: 76px; left: 12px;
+      bottom: 126px; left: 12px;
       z-index: 1000;
       width: 48px; height: 48px;
       border-radius: 50%;
@@ -118,28 +131,215 @@
     }
     .layer-row label { font-size: 12px; cursor: pointer; }
 
-    .camera-icon {
-      display: flex; align-items: center; justify-content: center;
-      width: 28px; height: 28px;
-      background: #1a56a0;
-      border-radius: 50%;
-      border: 2px solid #fff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    /* Camera marker */
+    .camera-icon { filter: drop-shadow(0 1px 3px rgba(0,0,0,0.35)); }
+
+    /* Lightbox */
+    #lightbox {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    #lightbox.active { display: flex; }
+    #lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 4px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    #lightbox-caption {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #fff;
       font-size: 14px;
-      line-height: 1;
+      background: rgba(0,0,0,0.6);
+      padding: 8px 16px;
+      border-radius: 4px;
+      white-space: nowrap;
     }
-    .leaflet-popup-content img { border-radius: 4px; display: block; }
-    .leaflet-popup-content .pop-caption {
-      font-size: 12px; font-weight: 600; margin-top: 6px; color: #222;
+    #lightbox-close {
+      position: absolute;
+      top: 20px; right: 20px;
+      color: #fff;
+      font-size: 32px;
+      cursor: pointer;
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.4);
+      border-radius: 50%;
     }
-    .leaflet-popup-content .pop-ts {
-      font-size: 11px; color: #888; margin-top: 2px;
+    #lightbox-close:hover { background: rgba(255,255,255,0.2); }
+
+    /* Search box — floating bottom bar */
+    #search-box {
+      position: absolute;
+      bottom: 30px; left: 70px;
+      z-index: 1000;
+      display: flex;
+      gap: 6px;
+    }
+    #search-input {
+      width: 260px;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      font-size: 13px;
+      outline: none;
+    }
+    #search-input:focus { box-shadow: 0 2px 12px rgba(44,95,46,0.4); }
+    #search-input::placeholder { color: #999; }
+    #search-btn, #clear-search-btn {
+      background: #fff;
+      border: none;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      width: 36px; height: 38px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #search-btn:hover, #clear-search-btn:hover { background: #f0f0f0; }
+    #search-btn svg, #clear-search-btn svg { width: 18px; height: 18px; }
+    #clear-search-btn { display: none; }
+    #clear-search-btn.visible { display: flex; }
+
+    /* Pulsing search result marker */
+    .search-marker {
+      width: 24px; height: 24px;
+      background: #e74c3c;
+      border: 3px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      animation: pulse 1.5s ease-out infinite;
+    }
+    @keyframes pulse {
+      0%   { box-shadow: 0 0 0 0   rgba(231,76,60,0.6); }
+      70%  { box-shadow: 0 0 0 15px rgba(231,76,60,0);   }
+      100% { box-shadow: 0 0 0 0   rgba(231,76,60,0);    }
+    }
+
+    /* Panel toggle button (mobile only) */
+    #panel-toggle {
+      display: none;
+      position: absolute;
+      top: 12px; right: 12px;
+      z-index: 1001;
+      background: #2c5f2e;
+      border: none;
+      border-radius: 8px;
+      width: 44px; height: 44px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+    #panel-toggle svg { width: 24px; height: 24px; }
+
+    /* Dark overlay behind panel on mobile */
+    #panel-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
+    #panel-overlay.visible { display: block; }
+
+    /* Mobile styles */
+    @media (max-width: 600px) {
+      #panel-toggle { display: flex; }
+      #panel-close  { display: block; }
+
+      #panel {
+        position: fixed;
+        top: 0; right: 0;
+        height: 100%;
+        width: 280px;
+        border-radius: 0;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+        overflow-y: auto;
+      }
+      #panel.open { transform: translateX(0); }
+      #panel h2 {
+        padding: 14px 16px;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+
+      .layer-row { padding: 10px 16px; min-height: 44px; }
+      .layer-row input { width: 20px; height: 20px; }
+      .layer-row label { font-size: 14px; }
+      .group-label { padding: 10px 16px 4px; font-size: 11px; }
+
+      #search-box { left: 8px; right: 8px; bottom: 20px; }
+      #search-input { flex: 1; width: auto; font-size: 16px; padding: 12px 14px; }
+      #search-btn, #clear-search-btn { width: 44px; height: 46px; flex-shrink: 0; }
+      #search-btn svg, #clear-search-btn svg { width: 22px; height: 22px; }
+
+      .locate-btn  { bottom: 80px; width: 44px; height: 44px; }
+      .locate-btn svg { width: 22px; height: 22px; }
+      #compass     { bottom: 134px; width: 52px; height: 52px; }
+      #compass-inner { width: 40px; height: 40px; }
+
+      .leaflet-control-zoom { margin-top: 70px !important; }
+
+      #lightbox-close { top: 12px; right: 12px; width: 48px; height: 48px; font-size: 36px; }
+      #lightbox-caption { bottom: 16px; font-size: 13px; padding: 10px 16px; max-width: 90%; text-align: center; white-space: normal; }
+
+      .leaflet-popup-content { font-size: 14px !important; min-width: 180px; }
     }
   </style>
 </head>
 <body>
 
 <div id="map"></div>
+
+<!-- Mobile panel toggle -->
+<button id="panel-toggle" title="Toggle layers">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+    <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+    <polyline points="2 17 12 22 22 17"/>
+    <polyline points="2 12 12 17 22 12"/>
+  </svg>
+</button>
+
+<!-- Mobile panel overlay -->
+<div id="panel-overlay"></div>
+
+<!-- Lightbox -->
+<div id="lightbox" onclick="closeLightbox()">
+  <span id="lightbox-close">&times;</span>
+  <img id="lightbox-img" src="" alt="Field Photo" />
+  <div id="lightbox-caption"></div>
+</div>
+
+<!-- Floating search bar -->
+<div id="search-box">
+  <input type="text" id="search-input" placeholder="Address or coordinates (lat, lng)" />
+  <button id="search-btn" title="Search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#2c5f2e" stroke-width="2">
+      <circle cx="11" cy="11" r="7"/>
+      <path d="M21 21l-4.35-4.35"/>
+    </svg>
+  </button>
+  <button id="clear-search-btn" title="Clear marker">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2">
+      <path d="M18 6L6 18M6 6l12 12"/>
+    </svg>
+  </button>
+</div>
 
 <div id="compass" title="Drag to rotate map · Click to reset north">
   <div id="compass-inner">
@@ -158,17 +358,33 @@
 </button>
 
 <div id="panel">
-  <h2>8th Street</h2>
+  <h2><span>8th Street</span><button id="panel-close">&times;</button></h2>
 
   <div class="group-label">Basemaps</div>
-  <div class="layer-row"><input type="radio" name="base" id="r-osm" checked /><label for="r-osm">OpenStreetMap</label></div>
+  <div class="layer-row"><input type="radio" name="base" id="r-osm" checked /><label for="r-osm">Street Map</label></div>
   <div class="layer-row"><input type="radio" name="base" id="r-sat" /><label for="r-sat">ESRI Satellite</label></div>
 
   <div class="group-label">Layers</div>
   <div class="layer-row">
     <input type="checkbox" id="chk-photos" checked />
-    <span class="swatch" style="background:#1a56a0;border-radius:50%"></span>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="16" height="16" style="flex-shrink:0">
+      <circle cx="20" cy="20" r="18" fill="white" stroke="#e05a4a" stroke-width="3"/>
+      <rect x="9" y="17" width="22" height="14" rx="2.5" fill="#e05a4a"/>
+      <path d="M15,17 L16.5,13 L23.5,13 L25,17Z" fill="#e05a4a"/>
+      <circle cx="20" cy="23" r="5" fill="white"/>
+      <circle cx="20" cy="23" r="3" fill="#e05a4a"/>
+      <circle cx="26.5" cy="19" r="1.5" fill="white"/>
+    </svg>
     <label for="chk-photos">Field Photos</label>
+  </div>
+  <div class="layer-row" style="padding-left:32px;cursor:default">
+    <div style="
+      width:22px;height:22px;border-radius:50%;
+      background:rgba(177,197,159,0.7);
+      border:3px solid rgba(110,152,80,0.5);
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0"></div>
+    <label style="cursor:default;color:#666;font-style:italic">Clustered — zoom in or click to expand</label>
   </div>
 </div>
 
@@ -177,8 +393,10 @@
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script>
 // ── Basemaps ──────────────────────────────────────────────────────────────────
-const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxNativeZoom: 19, maxZoom: 20, attribution: '© OpenStreetMap contributors'
+const osm = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  maxNativeZoom: 19, maxZoom: 20,
+  attribution: '© <a href="https://carto.com/">CARTO</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  subdomains: 'abcd'
 });
 const sat = L.tileLayer(
   'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -186,14 +404,15 @@ const sat = L.tileLayer(
 );
 
 // ── Map init ──────────────────────────────────────────────────────────────────
-const map = L.map('map', { layers: [osm], zoomControl: true, rotate: true, rotateControl: false }).setView([37.7993458754034, -122.2774721734447], 16);
+const map = L.map('map', { layers: [osm], zoomControl: true, rotate: true, rotateControl: false })
+  .setView([37.7993458754034, -122.2774721734447], 16);
 
 // ── Basemap radio buttons ─────────────────────────────────────────────────────
 document.getElementById('r-osm').addEventListener('change', () => { map.removeLayer(sat); osm.addTo(map); });
 document.getElementById('r-sat').addEventListener('change', () => { map.removeLayer(osm); sat.addTo(map); });
 
 // ── Compass rotation ──────────────────────────────────────────────────────────
-const compass     = document.getElementById('compass');
+const compass      = document.getElementById('compass');
 const compassInner = document.getElementById('compass-inner');
 let dragging = false;
 let didDrag  = false;
@@ -206,36 +425,29 @@ function getBearingFromEvent(e) {
   const clientY = e.touches ? e.touches[0].clientY : e.clientY;
   return Math.atan2(clientX - cx, cy - clientY) * 180 / Math.PI;
 }
-
 function updateCompass(bearing) {
   compassInner.style.transform = `rotate(${-bearing}deg)`;
 }
 
 compass.addEventListener('mousedown',  e => { dragging = true; didDrag = false; e.preventDefault(); });
 compass.addEventListener('touchstart', e => { dragging = true; didDrag = false; }, { passive: true });
-
 window.addEventListener('mousemove', e => {
   if (!dragging) return;
   didDrag = true;
   const b = getBearingFromEvent(e);
-  map.setBearing(b);
-  updateCompass(b);
+  map.setBearing(b); updateCompass(b);
 });
 window.addEventListener('touchmove', e => {
   if (!dragging) return;
   didDrag = true;
   const b = getBearingFromEvent(e);
-  map.setBearing(b);
-  updateCompass(b);
+  map.setBearing(b); updateCompass(b);
 }, { passive: true });
-
 window.addEventListener('mouseup',  () => { dragging = false; });
 window.addEventListener('touchend', () => { dragging = false; });
-
 compass.addEventListener('click', () => {
   if (didDrag) return;
-  map.setBearing(0);
-  updateCompass(0);
+  map.setBearing(0); updateCompass(0);
 });
 
 // ── Right-click coordinates ───────────────────────────────────────────────────
@@ -243,10 +455,8 @@ map.on('contextmenu', e => {
   const lat = e.latlng.lat.toFixed(6);
   const lng = e.latlng.lng.toFixed(6);
   const text = `${lat}, ${lng}`;
-
   navigator.clipboard.writeText(text).catch(() => {});
-
-  L.popup({ closeButton: true, className: 'coords-popup' })
+  L.popup({ closeButton: true })
     .setLatLng(e.latlng)
     .setContent(`
       <div style="font-size:12px;line-height:1.6">
@@ -275,37 +485,104 @@ function toggleLocate() {
   document.getElementById('locate-btn').classList.add('active');
   map.locate({ watch: true, enableHighAccuracy: true });
 }
-
 map.on('locationfound', e => {
   if (locationMarker) {
     locationMarker.setLatLng(e.latlng);
     locationCircle.setLatLng(e.latlng).setRadius(e.accuracy);
   } else {
     locationCircle = L.circle(e.latlng, {
-      radius: e.accuracy,
-      color: '#2c5f2e', fillColor: '#2c5f2e', fillOpacity: 0.12, weight: 1
+      radius: e.accuracy, color: '#2c5f2e', fillColor: '#2c5f2e', fillOpacity: 0.12, weight: 1
     }).addTo(map);
     locationMarker = L.circleMarker(e.latlng, {
-      radius: 7, color: '#fff', weight: 2,
-      fillColor: '#2c5f2e', fillOpacity: 1
+      radius: 7, color: '#fff', weight: 2, fillColor: '#2c5f2e', fillOpacity: 1
     }).addTo(map).bindPopup(`<b>You are here</b><br>Accuracy: ±${Math.round(e.accuracy)} m`);
     map.setView(e.latlng, Math.max(map.getZoom(), 17));
   }
 });
-
 map.on('locationerror', e => {
   locating = false;
   document.getElementById('locate-btn').classList.remove('active');
   alert('Location unavailable: ' + e.message);
 });
 
+// ── Lightbox ──────────────────────────────────────────────────────────────────
+const lightboxEl  = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
+const lightboxCap = document.getElementById('lightbox-caption');
+let lbScale = 1;
+
+function openLightbox(src, caption) {
+  lightboxImg.src = src;
+  lightboxCap.textContent = caption || '';
+  lbScale = 1;
+  lightboxImg.style.transform = '';
+  lightboxEl.classList.add('active');
+}
+function closeLightbox() {
+  lightboxEl.classList.remove('active');
+  lbScale = 1;
+  lightboxImg.style.transform = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+// Swipe down to close
+let lbTouchStartY = 0, lbTouchDeltaY = 0;
+lightboxEl.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) { lbTouchStartY = e.touches[0].clientY; lbTouchDeltaY = 0; }
+}, { passive: true });
+lightboxEl.addEventListener('touchmove', e => {
+  if (e.touches.length === 1) {
+    lbTouchDeltaY = e.touches[0].clientY - lbTouchStartY;
+    const opacity = Math.max(0.3, 1 - Math.abs(lbTouchDeltaY) / 300);
+    lightboxEl.style.background = `rgba(0,0,0,${opacity * 0.9})`;
+    lightboxImg.style.transform = `translateY(${lbTouchDeltaY}px)`;
+  }
+}, { passive: true });
+lightboxEl.addEventListener('touchend', () => {
+  if (Math.abs(lbTouchDeltaY) > 100) { closeLightbox(); }
+  else { lightboxEl.style.background = ''; lightboxImg.style.transform = ''; }
+  lbTouchDeltaY = 0;
+});
+
+// Pinch to zoom
+let lbInitDist = 0;
+function getTouchDist(touches) {
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+lightboxEl.addEventListener('touchstart', e => {
+  if (e.touches.length === 2) lbInitDist = getTouchDist(e.touches);
+}, { passive: true });
+lightboxEl.addEventListener('touchmove', e => {
+  if (e.touches.length === 2) {
+    const scale = Math.min(3, Math.max(0.5, lbScale * (getTouchDist(e.touches) / lbInitDist)));
+    lightboxImg.style.transform = `scale(${scale})`;
+  }
+}, { passive: true });
+lightboxEl.addEventListener('touchend', e => {
+  if (e.touches.length < 2) {
+    const m = lightboxImg.style.transform.match(/scale\(([\d.]+)\)/);
+    if (m) { lbScale = parseFloat(m[1]); if (lbScale < 1) { lbScale = 1; lightboxImg.style.transform = ''; } }
+    lbInitDist = 0;
+  }
+});
+
 // ── Photo layer ───────────────────────────────────────────────────────────────
+const CAMERA_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="38" height="38">
+  <circle cx="20" cy="20" r="18" fill="white" stroke="#e05a4a" stroke-width="2.5"/>
+  <rect x="9" y="17" width="22" height="14" rx="2.5" fill="#e05a4a"/>
+  <path d="M15,17 L16.5,13 L23.5,13 L25,17Z" fill="#e05a4a"/>
+  <circle cx="20" cy="23" r="5" fill="white"/>
+  <circle cx="20" cy="23" r="3" fill="#e05a4a"/>
+  <circle cx="26.5" cy="19" r="1.5" fill="white"/>
+</svg>`;
+
 const cameraIcon = L.divIcon({
-  className: '',
-  html: '<div class="camera-icon">📷</div>',
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
-  popupAnchor: [0, -16]
+  className: 'camera-icon',
+  html: CAMERA_SVG,
+  iconSize: [38, 38],
+  iconAnchor: [19, 19]
 });
 
 const photoCluster = L.markerClusterGroup({ maxClusterRadius: 40 });
@@ -314,16 +591,10 @@ fetch('data/photos.json')
   .then(r => r.json())
   .then(geojson => {
     L.geoJSON(geojson, {
-      pointToLayer(feature, latlng) {
-        return L.marker(latlng, { icon: cameraIcon });
-      },
-      onEachFeature(feature, layer) {
+      pointToLayer: (feature, latlng) => L.marker(latlng, { icon: cameraIcon }),
+      onEachFeature: (feature, layer) => {
         const p = feature.properties;
-        layer.bindPopup(`
-          <img src="${p.file}" width="300" style="max-width:100%" />
-          <div class="pop-caption">${p.caption}</div>
-          <div class="pop-ts">${p.timestamp}</div>
-        `, { maxWidth: 320 });
+        layer.on('click', () => openLightbox(p.file, `${p.caption} — ${p.timestamp}`));
       }
     }).addTo(photoCluster);
     photoCluster.addTo(map);
@@ -332,6 +603,84 @@ fetch('data/photos.json')
 document.getElementById('chk-photos').addEventListener('change', e => {
   e.target.checked ? photoCluster.addTo(map) : map.removeLayer(photoCluster);
 });
+
+// ── Search ────────────────────────────────────────────────────────────────────
+const searchInput = document.getElementById('search-input');
+const searchBtn   = document.getElementById('search-btn');
+const clearBtn    = document.getElementById('clear-search-btn');
+let searchMarker  = null;
+
+const searchIcon = L.divIcon({
+  className: '',
+  html: '<div class="search-marker"></div>',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12]
+});
+
+function placeSearchMarker(lat, lng, label) {
+  if (searchMarker) map.removeLayer(searchMarker);
+  searchMarker = L.marker([lat, lng], { icon: searchIcon }).addTo(map);
+  searchMarker.bindPopup(`
+    <div style="font-size:12px;min-width:150px">
+      <div style="font-weight:600;margin-bottom:4px">${label}</div>
+      <div style="font-family:monospace;color:#666">${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
+    </div>`).openPopup();
+  map.flyTo([lat, lng], 18, { duration: 1 });
+  clearBtn.classList.add('visible');
+}
+
+function clearSearch() {
+  if (searchMarker) { map.removeLayer(searchMarker); searchMarker = null; }
+  clearBtn.classList.remove('visible');
+  searchInput.value = '';
+}
+
+async function doSearch() {
+  const raw = searchInput.value.trim();
+  if (!raw) return;
+
+  const m = raw.replace(/[°'"NSEW]/gi, '').trim().match(/^(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)$/);
+  if (m) {
+    const lat = parseFloat(m[1]), lng = parseFloat(m[2]);
+    if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+      placeSearchMarker(lat, lng, 'Coordinates');
+    }
+    return;
+  }
+
+  searchBtn.style.opacity = '0.5';
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(raw)}&limit=1`,
+      { headers: { 'User-Agent': 'GeronimoEng/1.0' } }
+    );
+    const data = await res.json();
+    if (data.length) {
+      placeSearchMarker(parseFloat(data[0].lat), parseFloat(data[0].lon), data[0].display_name.split(',')[0]);
+    } else {
+      alert('Location not found. Try a different address or use coordinates (lat, lng).');
+    }
+  } catch { alert('Search failed — check connection.'); }
+  searchBtn.style.opacity = '1';
+}
+
+searchBtn.addEventListener('click', doSearch);
+clearBtn.addEventListener('click', clearSearch);
+searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+// ── Mobile panel toggle ───────────────────────────────────────────────────────
+const panel        = document.getElementById('panel');
+const panelToggle  = document.getElementById('panel-toggle');
+const panelOverlay = document.getElementById('panel-overlay');
+const panelClose   = document.getElementById('panel-close');
+
+function openPanel()  { panel.classList.add('open');    panelOverlay.classList.add('visible'); }
+function closePanel() { panel.classList.remove('open'); panelOverlay.classList.remove('visible'); }
+
+panelToggle.addEventListener('click', () =>
+  panel.classList.contains('open') ? closePanel() : openPanel());
+panelOverlay.addEventListener('click', closePanel);
+panelClose.addEventListener('click', closePanel);
 </script>
 </body>
 </html>
