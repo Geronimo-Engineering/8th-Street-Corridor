@@ -27,7 +27,7 @@
       overflow: hidden;
     }
     #panel h2 {
-      background: #2c5f2e;
+      background: #3D9EC5;
       color: #fff;
       padding: 10px 14px;
       font-size: 13px;
@@ -48,26 +48,9 @@
       line-height: 1;
     }
 
-    .locate-btn {
-      position: absolute;
-      bottom: 30px; left: 12px;
-      z-index: 1000;
-      background: #fff;
-      border: none;
-      border-radius: 6px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-      width: 36px; height: 36px;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s;
-    }
-    .locate-btn:hover { background: #f0f0f0; }
-    .locate-btn.active { background: #e8f4ea; }
-    .locate-btn svg { width: 18px; height: 18px; }
-
     #compass {
       position: absolute;
-      bottom: 76px; left: 6px;
+      bottom: 138px; right: 8px;
       z-index: 1000;
       width: 48px; height: 48px;
       border-radius: 50%;
@@ -126,7 +109,7 @@
       user-select: none;
     }
     .layer-row:hover { background: #f5f5f5; }
-    .layer-row input { cursor: pointer; accent-color: #2c5f2e; }
+    .layer-row input { cursor: pointer; accent-color: #3D9EC5; }
     .swatch {
       width: 14px; height: 14px;
       border-radius: 2px;
@@ -137,11 +120,176 @@
     /* Camera marker */
     .camera-icon { filter: drop-shadow(0 1px 3px rgba(0,0,0,0.35)); }
 
+    /* Zoom control — sits just above the search bar */
+    .leaflet-bottom.leaflet-right .leaflet-control-zoom {
+      margin-right: 10px;
+      margin-bottom: 76px;
+    }
+    @media (max-width: 600px) {
+      .leaflet-bottom.leaflet-right .leaflet-control-zoom {
+        margin-right: 8px;
+        margin-bottom: 74px;
+      }
+    }
+
     /* Keep all cluster sizes the same green — no yellow/red shift */
     .marker-cluster-medium,
     .marker-cluster-large      { background-color: rgba(181,226,140,0.6); }
     .marker-cluster-medium div,
     .marker-cluster-large div  { background-color: rgba(110,204, 57,0.6); }
+
+    /* ── Highlighted Photos panel ───────────────────────────────────── */
+    #highlights-panel {
+      position: absolute;
+      top: 12px; left: 12px;
+      z-index: 1000;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      width: 210px;
+      height: calc(100vh - 148px);
+      display: flex;
+      flex-direction: column;
+    }
+    #highlights-list {
+      overflow-y: auto;
+      flex: 1;
+      scrollbar-width: thin;
+    }
+    #highlights-panel h2 {
+      background: #3D9EC5;
+      color: #fff;
+      padding: 10px 14px;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .highlight-card {
+      padding: 8px 10px 10px;
+      border-bottom: 1px solid #f0f0f0;
+      border-left: 3px solid #D4891A;
+    }
+    .highlight-card:last-child { border-bottom: none; }
+    .highlight-thumb {
+      position: relative;
+      width: 100%;
+      height: 115px;
+      border-radius: 5px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .highlight-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: opacity 0.15s;
+    }
+    .highlight-thumb:hover img { opacity: 0.88; }
+    .highlight-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #D4891A;
+      margin: 6px 0 2px;
+    }
+    .highlight-desc {
+      font-size: 11px;
+      color: #666;
+      line-height: 1.5;
+      min-height: 36px;
+    }
+    .highlight-locate {
+      position: absolute;
+      bottom: 5px; right: 5px;
+      background: rgba(255,255,255,0.92);
+      border: none;
+      border-radius: 5px;
+      width: 28px; height: 28px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+      transition: background 0.15s;
+    }
+    .highlight-locate:hover { background: #fff; }
+    .highlight-locate svg { width: 16px; height: 16px; }
+
+    /* Highlights mobile toggle button */
+    #highlights-toggle {
+      display: none;
+      position: absolute;
+      top: 12px; left: 12px;
+      z-index: 1001;
+      background: #3D9EC5;
+      border: none;
+      border-radius: 8px;
+      width: 44px; height: 44px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+    #highlights-toggle svg { width: 24px; height: 24px; }
+
+    /* Highlights close button (inside panel h2, mobile only) */
+    #highlights-close {
+      display: none;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+
+    /* Highlights overlay */
+    #highlights-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
+    #highlights-overlay.visible { display: block; }
+
+    @media (max-width: 600px) {
+      #highlights-toggle { display: flex; }
+      #highlights-close  { display: block; }
+
+      #highlights-panel {
+        position: fixed;
+        top: 0; left: 0;
+        height: 100%;
+        width: 280px;
+        border-radius: 0;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+        overflow: hidden;
+      }
+      #highlights-panel.open { transform: translateX(0); }
+      #highlights-panel h2 {
+        padding: 14px 16px;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      #highlights-list {
+        overflow-y: auto;
+        flex: 1;
+        height: calc(100% - 48px);
+      }
+      .highlight-card { padding: 10px 12px 12px; }
+      .highlight-thumb { height: 130px; }
+      .highlight-label { font-size: 13px; }
+      .highlight-desc  { font-size: 12px; }
+    }
 
     /* Lightbox */
     #lightbox {
@@ -204,7 +352,7 @@
       font-size: 13px;
       outline: none;
     }
-    #search-input:focus { box-shadow: 0 2px 12px rgba(44,95,46,0.4); }
+    #search-input:focus { box-shadow: 0 2px 12px rgba(61,158,197,0.4); }
     #search-input::placeholder { color: #999; }
     #search-btn, #clear-search-btn {
       background: #fff;
@@ -241,7 +389,7 @@
       position: absolute;
       top: 12px; right: 12px;
       z-index: 1001;
-      background: #2c5f2e;
+      background: #3D9EC5;
       border: none;
       border-radius: 8px;
       width: 44px; height: 44px;
@@ -297,9 +445,7 @@
       #search-btn, #clear-search-btn { width: 44px; height: 46px; flex-shrink: 0; }
       #search-btn svg, #clear-search-btn svg { width: 22px; height: 22px; }
 
-      .locate-btn  { bottom: 20px; width: 44px; height: 44px; }
-      .locate-btn svg { width: 22px; height: 22px; }
-      #compass     { bottom: 74px; left: 8px; width: 52px; height: 52px; }
+      #compass     { bottom: 136px; right: 8px; width: 52px; height: 52px; }
       #compass-inner { width: 40px; height: 40px; }
 
 
@@ -313,6 +459,88 @@
 <body>
 
 <div id="map"></div>
+
+<!-- ── Highlighted Photos Panel ──────────────────────────────────────────── -->
+<div id="highlights-panel">
+  <h2><span>Highlighted Photos</span><button id="highlights-close">&times;</button></h2>
+
+  <div id="highlights-list">
+  <!-- ================================================================
+       EDIT HIGHLIGHTED PHOTOS HERE — add or remove cards freely,
+       the panel scrolls automatically for any number of photos.
+       Each card: click thumbnail → lightbox (full-res),
+       pin button → map snaps to that location.
+       ================================================================ -->
+
+  <div class="highlight-card">
+    <div class="highlight-thumb"
+         onclick="openLightbox('photos_01042026/01042026/IMG_7209.JPG','Madison Square Park — Jan 4, 2026 — Jan 4, 2026 at 1:37:06 PM')">
+      <img src="photos_web/jan2026/IMG_7209.jpg" loading="lazy" alt="" />
+      <button class="highlight-locate"
+              onclick="event.stopPropagation();map.flyTo([37.7976139,-122.2671194],19)"
+              title="Snap map to this location">
+        <svg viewBox="0 0 24 24" fill="#D4891A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      </button>
+    </div>
+    <div class="highlight-label">Madison Square Park</div>
+    <div class="highlight-desc"></div>
+  </div>
+
+  <div class="highlight-card">
+    <div class="highlight-thumb"
+         onclick="openLightbox('photos_01042026/01042026/IMG_7235.JPG','356 8th St — Jan 4, 2026 — Jan 4, 2026 at 1:45:24 PM')">
+      <img src="photos_web/jan2026/IMG_7235.jpg" loading="lazy" alt="" />
+      <button class="highlight-locate"
+              onclick="event.stopPropagation();map.flyTo([37.7994194,-122.2716611],19)"
+              title="Snap map to this location">
+        <svg viewBox="0 0 24 24" fill="#D4891A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      </button>
+    </div>
+    <div class="highlight-label">356 8th St</div>
+    <div class="highlight-desc"></div>
+  </div>
+
+  <div class="highlight-card">
+    <div class="highlight-thumb"
+         onclick="openLightbox('photos_01042026/01042026/IMG_7257.JPG','536 8th St — Jan 4, 2026 — Jan 4, 2026 at 1:51:55 PM')">
+      <img src="photos_web/jan2026/IMG_7257.jpg" loading="lazy" alt="" />
+      <button class="highlight-locate"
+              onclick="event.stopPropagation();map.flyTo([37.8010611,-122.2759028],19)"
+              title="Snap map to this location">
+        <svg viewBox="0 0 24 24" fill="#D4891A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      </button>
+    </div>
+    <div class="highlight-label">536 8th St</div>
+    <div class="highlight-desc"></div>
+  </div>
+
+  <div class="highlight-card">
+    <div class="highlight-thumb"
+         onclick="openLightbox('photos_02042025/02042025/IMG_7222.JPEG','Feb 4, 2025 — Feb 4, 2025 at 9:45:22 AM')">
+      <img src="photos_web/feb2025/IMG_7222.jpg" loading="lazy" alt="" />
+      <button class="highlight-locate"
+              onclick="event.stopPropagation();map.flyTo([37.8015222,-122.2770389],19)"
+              title="Snap map to this location">
+        <svg viewBox="0 0 24 24" fill="#D4891A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      </button>
+    </div>
+    <div class="highlight-label">Feb 4, 2025 survey</div>
+    <div class="highlight-desc"></div>
+  </div>
+
+  </div><!-- end #highlights-list -->
+</div><!-- end #highlights-panel -->
+
+<!-- Mobile highlights toggle -->
+<button id="highlights-toggle" title="Highlighted photos">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+    <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+  </svg>
+</button>
+
+<!-- Highlights overlay -->
+<div id="highlights-overlay"></div>
 
 <!-- Mobile panel toggle -->
 <button id="panel-toggle" title="Toggle layers">
@@ -337,7 +565,7 @@
 <div id="search-box">
   <input type="text" id="search-input" placeholder="Address or coordinates (lat, lng)" />
   <button id="search-btn" title="Search">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#2c5f2e" stroke-width="2">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#3D9EC5" stroke-width="2">
       <circle cx="11" cy="11" r="7"/>
       <path d="M21 21l-4.35-4.35"/>
     </svg>
@@ -357,13 +585,6 @@
   </div>
 </div>
 
-<button class="locate-btn" id="locate-btn" title="Show my location" onclick="toggleLocate()">
-  <svg viewBox="0 0 24 24" fill="none" stroke="#2c5f2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="3"/>
-    <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
-    <circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/>
-  </svg>
-</button>
 
 <div id="panel">
   <h2><span>8th Street</span><button id="panel-close">&times;</button></h2>
@@ -372,7 +593,7 @@
   <div class="layer-row"><input type="radio" name="base" id="r-osm" checked /><label for="r-osm">Street Map</label></div>
   <div class="layer-row"><input type="radio" name="base" id="r-sat" /><label for="r-sat">ESRI Satellite</label></div>
 
-  <div class="group-label">Layers</div>
+  <div class="group-label">Photo Surveys</div>
   <div class="layer-row">
     <input type="checkbox" id="chk-photos" checked />
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="16" height="16" style="flex-shrink:0">
@@ -383,7 +604,7 @@
       <circle cx="20" cy="23" r="3" fill="#e05a4a"/>
       <circle cx="26.5" cy="19" r="1.5" fill="white"/>
     </svg>
-    <label for="chk-photos">Field Photos</label>
+    <label for="chk-photos">Field Photos <span style="color:#999">(87)</span></label>
   </div>
   <div class="layer-row" style="padding-left:32px;cursor:default">
     <div style="
@@ -412,8 +633,9 @@ const sat = L.tileLayer(
 );
 
 // ── Map init ──────────────────────────────────────────────────────────────────
-const map = L.map('map', { layers: [osm], zoomControl: true, rotate: true, rotateControl: false })
+const map = L.map('map', { layers: [osm], zoomControl: false, rotate: true, rotateControl: false })
   .setView([37.7993458754034, -122.2774721734447], 16);
+L.control.zoom({ position: 'bottomright' }).addTo(map);
 
 // ── Basemap radio buttons ─────────────────────────────────────────────────────
 document.getElementById('r-osm').addEventListener('change', () => { map.removeLayer(sat); osm.addTo(map); });
@@ -475,43 +697,6 @@ map.on('contextmenu', e => {
     .openOn(map);
 });
 
-// ── Geolocation ───────────────────────────────────────────────────────────────
-let locating = false;
-let locationMarker = null;
-let locationCircle = null;
-
-function toggleLocate() {
-  if (locating) {
-    map.stopLocate();
-    locating = false;
-    document.getElementById('locate-btn').classList.remove('active');
-    if (locationMarker) { map.removeLayer(locationMarker); locationMarker = null; }
-    if (locationCircle) { map.removeLayer(locationCircle); locationCircle = null; }
-    return;
-  }
-  locating = true;
-  document.getElementById('locate-btn').classList.add('active');
-  map.locate({ watch: true, enableHighAccuracy: true });
-}
-map.on('locationfound', e => {
-  if (locationMarker) {
-    locationMarker.setLatLng(e.latlng);
-    locationCircle.setLatLng(e.latlng).setRadius(e.accuracy);
-  } else {
-    locationCircle = L.circle(e.latlng, {
-      radius: e.accuracy, color: '#2c5f2e', fillColor: '#2c5f2e', fillOpacity: 0.12, weight: 1
-    }).addTo(map);
-    locationMarker = L.circleMarker(e.latlng, {
-      radius: 7, color: '#fff', weight: 2, fillColor: '#2c5f2e', fillOpacity: 1
-    }).addTo(map).bindPopup(`<b>You are here</b><br>Accuracy: ±${Math.round(e.accuracy)} m`);
-    map.setView(e.latlng, Math.max(map.getZoom(), 17));
-  }
-});
-map.on('locationerror', e => {
-  locating = false;
-  document.getElementById('locate-btn').classList.remove('active');
-  alert('Location unavailable: ' + e.message);
-});
 
 // ── Lightbox ──────────────────────────────────────────────────────────────────
 const lightboxEl  = document.getElementById('lightbox');
@@ -586,25 +771,21 @@ const CAMERA_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" 
   <circle cx="26.5" cy="19" r="1.5" fill="white"/>
 </svg>`;
 
-const cameraIcon = L.divIcon({
-  className: 'camera-icon',
-  html: CAMERA_SVG,
-  iconSize: [38, 38],
-  iconAnchor: [19, 19]
-});
+const cameraIcon = L.divIcon({ className: 'camera-icon', html: CAMERA_SVG, iconSize: [38, 38], iconAnchor: [19, 19] });
 
 const photoCluster = L.markerClusterGroup({ maxClusterRadius: 40 });
 
 fetch('data/photos.json')
   .then(r => r.json())
   .then(geojson => {
-    L.geoJSON(geojson, {
-      pointToLayer: (feature, latlng) => L.marker(latlng, { icon: cameraIcon }),
-      onEachFeature: (feature, layer) => {
-        const p = feature.properties;
-        layer.on('click', () => openLightbox(p.file, `${p.caption} — ${p.timestamp}`));
-      }
-    }).addTo(photoCluster);
+    geojson.features.forEach(f => {
+      const p = f.properties;
+      const [lon, lat] = f.geometry.coordinates;
+      const marker = L.marker([lat, lon], { icon: cameraIcon });
+      const cap = p.caption ? `${p.caption} — ${p.timestamp}` : p.timestamp;
+      marker.on('click', () => openLightbox(p.file, cap));
+      photoCluster.addLayer(marker);
+    });
     photoCluster.addTo(map);
   });
 
@@ -689,6 +870,20 @@ panelToggle.addEventListener('click', () =>
   panel.classList.contains('open') ? closePanel() : openPanel());
 panelOverlay.addEventListener('click', closePanel);
 panelClose.addEventListener('click', closePanel);
+
+// ── Mobile highlights panel ───────────────────────────────────────────────────
+const highlightsPanel   = document.getElementById('highlights-panel');
+const highlightsToggle  = document.getElementById('highlights-toggle');
+const highlightsOverlay = document.getElementById('highlights-overlay');
+const highlightsClose   = document.getElementById('highlights-close');
+
+function openHighlights()  { highlightsPanel.classList.add('open');    highlightsOverlay.classList.add('visible'); }
+function closeHighlights() { highlightsPanel.classList.remove('open'); highlightsOverlay.classList.remove('visible'); }
+
+highlightsToggle.addEventListener('click',  () =>
+  highlightsPanel.classList.contains('open') ? closeHighlights() : openHighlights());
+highlightsOverlay.addEventListener('click', closeHighlights);
+highlightsClose.addEventListener('click',   closeHighlights);
 </script>
 </body>
 </html>
