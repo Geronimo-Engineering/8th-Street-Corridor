@@ -74,7 +74,7 @@
 
     #compass {
       position: absolute;
-      bottom: 69px; right: 64px;
+      bottom: 69px; left: 46px;
       z-index: 1000;
       width: 48px; height: 48px;
       border-radius: 50%;
@@ -144,14 +144,14 @@
     /* Camera marker */
     .camera-icon { filter: drop-shadow(0 1px 3px rgba(0,0,0,0.35)); }
 
-    /* Zoom control — above search bar */
-    .leaflet-bottom.leaflet-right .leaflet-control-zoom {
-      margin-right: 10px;
+    /* Zoom control — above search bar, left side */
+    .leaflet-bottom.leaflet-left .leaflet-control-zoom {
+      margin-left: 10px;
       margin-bottom: 66px;
     }
     @media (max-width: 600px) {
-      .leaflet-bottom.leaflet-right .leaflet-control-zoom {
-        margin-right: 8px;
+      .leaflet-bottom.leaflet-left .leaflet-control-zoom {
+        margin-left: 8px;
         margin-bottom: 72px;
       }
     }
@@ -165,13 +165,13 @@
     /* ── Highlighted Photos panel ───────────────────────────────────── */
     #highlights-panel {
       position: absolute;
-      top: 12px; left: 12px;
+      top: 300px; right: 12px; left: auto;
       z-index: 1000;
       background: #fff;
       border-radius: 8px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-      width: 210px;
-      height: calc(100vh - 148px);
+      width: 220px;
+      height: 400px;
       display: flex;
       flex-direction: column;
     }
@@ -359,10 +359,10 @@
     }
     #lightbox-close:hover { background: rgba(255,255,255,0.2); }
 
-    /* Search box — bottom-right */
+    /* Search box — bottom-left */
     #search-box {
       position: absolute;
-      bottom: 16px; right: 10px; left: auto;
+      bottom: 16px; left: 10px; right: auto;
       z-index: 1000;
       display: flex;
       gap: 6px;
@@ -469,7 +469,7 @@
       #search-btn, #clear-search-btn { width: 44px; height: 46px; flex-shrink: 0; }
       #search-btn svg, #clear-search-btn svg { width: 22px; height: 22px; }
 
-      #compass     { bottom: 73px; right: 52px; width: 52px; height: 52px; }
+      #compass     { bottom: 73px; left: 42px; width: 52px; height: 52px; }
       #compass-inner { width: 40px; height: 40px; }
 
 
@@ -666,7 +666,7 @@ const sat = L.tileLayer(
 // ── Map init ──────────────────────────────────────────────────────────────────
 const map = L.map('map', { layers: [osm], zoomControl: false, rotate: true, rotateControl: false })
   .setView([37.7993458754034, -122.2774721734447], 16);
-L.control.zoom({ position: 'bottomright' }).addTo(map);
+L.control.zoom({ position: 'bottomleft' }).addTo(map);
 
 // ── Basemap radio buttons ─────────────────────────────────────────────────────
 document.getElementById('r-osm').addEventListener('change', () => { map.removeLayer(sat); osm.addTo(map); });
@@ -928,8 +928,25 @@ function alignCompassWithZoom() {
   compassEl.style.top    = Math.round(zoomCenterY - compassEl.offsetHeight / 2) + 'px';
   compassEl.style.bottom = 'auto';
 }
-setTimeout(alignCompassWithZoom, 200);
-window.addEventListener('resize', alignCompassWithZoom);
+
+// ── Position highlights panel directly below legend panel ────────────────────
+function positionHighlightsBelow() {
+  if (window.innerWidth <= 600) return;
+  const panel      = document.getElementById('panel');
+  const highlights = document.getElementById('highlights-panel');
+  if (!panel || !highlights) return;
+  const mapEl    = document.getElementById('map');
+  const mapRect  = mapEl.getBoundingClientRect();
+  const panelRect = panel.getBoundingClientRect();
+  const gap    = 8;
+  const newTop = panelRect.bottom - mapRect.top + gap;
+  const newH   = mapRect.height - newTop - 12;
+  highlights.style.top    = newTop + 'px';
+  highlights.style.height = Math.max(80, newH) + 'px';
+}
+
+setTimeout(() => { alignCompassWithZoom(); positionHighlightsBelow(); }, 200);
+window.addEventListener('resize', () => { alignCompassWithZoom(); positionHighlightsBelow(); });
 </script>
 </body>
 </html>
