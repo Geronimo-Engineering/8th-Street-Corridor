@@ -148,10 +148,10 @@
     /* Camera marker */
     .camera-icon { filter: drop-shadow(0 1px 3px rgba(0,0,0,0.35)); }
 
-    /* Zoom control — above search bar, left side */
+    /* Zoom control — lower left */
     .leaflet-bottom.leaflet-left .leaflet-control-zoom {
       margin-left: 10px;
-      margin-bottom: 66px;
+      margin-bottom: 16px;
     }
     @media (max-width: 600px) {
       .leaflet-bottom.leaflet-left .leaflet-control-zoom {
@@ -360,10 +360,10 @@
     }
     #lightbox-close:hover { background: rgba(255,255,255,0.2); }
 
-    /* Search box — bottom-left */
+    /* Search box — top-left */
     #search-box {
       position: absolute;
-      bottom: 16px; left: 10px; right: auto;
+      top: 12px; left: 10px; right: auto;
       z-index: 1000;
       display: flex;
       gap: 6px;
@@ -480,7 +480,7 @@
       .layer-row label { font-size: 14px; }
       .group-label { padding: 10px 16px 4px; font-size: 11px; }
 
-      #search-box { left: 12px; right: 8px; bottom: 16px; }
+      #search-box { top: auto; bottom: 16px; left: 12px; right: 8px; }
       #search-input { flex: 1; width: auto; font-size: 16px; padding: 12px 14px; }
       #search-btn, #clear-search-btn { width: 44px; height: 46px; flex-shrink: 0; }
       #search-btn svg, #clear-search-btn svg { width: 22px; height: 22px; }
@@ -645,6 +645,22 @@
       display:flex;align-items:center;justify-content:center;
       flex-shrink:0"></div>
     <label style="cursor:default;color:#666;font-style:italic">Clustered — zoom in or click to expand</label>
+  </div>
+
+  <div class="group-label">Infrastructure</div>
+  <div style="padding:2px 14px 5px;font-size:9px;color:#888;font-style:italic;line-height:1.5">
+    Filtered to project area<br>
+    Source: City of Oakland GIS Portal
+  </div>
+  <div class="layer-row">
+    <input type="checkbox" id="chk-drains" />
+    <svg width="14" height="14" style="flex-shrink:0"><circle cx="7" cy="7" r="5" fill="#5B8DB8" stroke="white" stroke-width="1.5"/></svg>
+    <label for="chk-drains">Storm Drains <span style="color:#999">(1,529)</span></label>
+  </div>
+  <div class="layer-row">
+    <input type="checkbox" id="chk-inlets" />
+    <svg width="14" height="14" style="flex-shrink:0"><polygon points="7,2 12,7 7,12 2,7" fill="#3DAA77" stroke="white" stroke-width="1.5"/></svg>
+    <label for="chk-inlets">Storm Inlets <span style="color:#999">(736)</span></label>
   </div>
 </div>
 
@@ -823,6 +839,42 @@ fetch('data/photos.json')
 document.getElementById('chk-photos').addEventListener('change', e => {
   e.target.checked ? photoCluster.addTo(map) : map.removeLayer(photoCluster);
 });
+
+// ── Infrastructure layers (lazy-load on first toggle) ─────────────────────────
+const infraCache = {};
+
+const drainIcon = L.divIcon({
+  className: '',
+  html: '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="3.5" fill="#5B8DB8" stroke="#fff" stroke-width="1.5"/></svg>',
+  iconSize: [10, 10], iconAnchor: [5, 5]
+});
+const inletIcon = L.divIcon({
+  className: '',
+  html: '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><polygon points="5,1 9,5 5,9 1,5" fill="#3DAA77" stroke="#fff" stroke-width="1.5"/></svg>',
+  iconSize: [10, 10], iconAnchor: [5, 5]
+});
+
+async function toggleInfra(id, url, icon) {
+  const chk = document.getElementById(`chk-${id}`);
+  if (chk.checked) {
+    if (!infraCache[id]) {
+      const geojson = await fetch(url).then(r => r.json());
+      infraCache[id] = L.geoJSON(geojson, {
+        pointToLayer: (f, latlng) => L.marker(latlng, { icon })
+          .bindTooltip(`ID: ${f.properties.id}`, { direction: 'top', offset: [0, -6] })
+      });
+    }
+    infraCache[id].addTo(map);
+  } else {
+    if (infraCache[id]) map.removeLayer(infraCache[id]);
+  }
+}
+
+document.getElementById('chk-drains').addEventListener('change', () =>
+  toggleInfra('drains', 'data/drains.geojson', drainIcon));
+
+document.getElementById('chk-inlets').addEventListener('change', () =>
+  toggleInfra('inlets', 'data/inlets.geojson', inletIcon));
 
 // ── Search ────────────────────────────────────────────────────────────────────
 const searchInput = document.getElementById('search-input');
