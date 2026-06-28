@@ -7,6 +7,8 @@
   <link rel="icon" href="https://geronimoengineering.com/wp-content/uploads/2023/01/cropped-Geronimo-Engineering-Logo-32x32.jpg" sizes="32x32" />
   <link rel="icon" href="https://geronimoengineering.com/wp-content/uploads/2023/01/cropped-Geronimo-Engineering-Logo-192x192.jpg" sizes="192x192" />
   <link rel="apple-touch-icon" href="https://geronimoengineering.com/wp-content/uploads/2023/01/cropped-Geronimo-Engineering-Logo-180x180.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital@1&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
@@ -27,7 +29,7 @@
       overflow: hidden;
     }
     #panel h2 {
-      background: #3D9EC5;
+      background: #1A5276;
       color: #fff;
       padding: 10px 14px;
       font-size: 13px;
@@ -38,8 +40,10 @@
       align-items: center;
     }
     .panel-project {
-      font-size: 13px;
-      font-weight: 700;
+      font-family: 'Lora', serif;
+      font-style: italic;
+      font-size: 14px;
+      font-weight: 400;
       color: #fff;
       line-height: 1.3;
     }
@@ -120,7 +124,7 @@
       padding: 6px 14px 2px;
       font-size: 10px;
       font-weight: 700;
-      color: #888;
+      color: #1A5276;
       text-transform: uppercase;
       letter-spacing: 0.6px;
     }
@@ -181,7 +185,7 @@
       scrollbar-width: thin;
     }
     #highlights-panel h2 {
-      background: #3D9EC5;
+      background: #1A5276;
       color: #fff;
       padding: 10px 14px;
       font-size: 13px;
@@ -194,7 +198,6 @@
     .highlight-card {
       padding: 8px 10px 10px;
       border-bottom: 1px solid #f0f0f0;
-      border-left: 3px solid #D4891A;
     }
     .highlight-card:last-child { border-bottom: none; }
     .highlight-thumb {
@@ -215,7 +218,7 @@
     .highlight-label {
       font-size: 11px;
       font-weight: 600;
-      color: #D4891A;
+      color: #C8841A;
       margin: 6px 0 2px;
     }
     .highlight-desc {
@@ -224,20 +227,18 @@
       line-height: 1.5;
       min-height: 36px;
     }
-    .highlight-locate {
+    .highlight-minimap {
       position: absolute;
       bottom: 5px; right: 5px;
-      background: rgba(255,255,255,0.92);
-      border: none;
-      border-radius: 5px;
-      width: 28px; height: 28px;
+      width: 35px; height: 35px;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+      border: 2px solid rgba(255,255,255,0.95);
       cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
-      transition: background 0.15s;
     }
-    .highlight-locate:hover { background: #fff; }
-    .highlight-locate svg { width: 16px; height: 16px; }
+    .highlight-minimap .leaflet-container { background: #e8e0d8; }
+    .highlight-minimap .leaflet-control-container { display: none; }
 
     /* Highlights mobile toggle button */
     #highlights-toggle {
@@ -245,7 +246,7 @@
       position: absolute;
       top: 12px; left: 12px;
       z-index: 1001;
-      background: #3D9EC5;
+      background: #1A5276;
       border: none;
       border-radius: 8px;
       width: 44px; height: 44px;
@@ -407,13 +408,28 @@
       100% { box-shadow: 0 0 0 0   rgba(231,76,60,0);    }
     }
 
+    /* Highlight flyto locator */
+    .highlight-locator {
+      width: 22px; height: 22px;
+      background: #C8841A;
+      border: 3px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      animation: locator-pulse 1s ease-out 6;
+    }
+    @keyframes locator-pulse {
+      0%   { box-shadow: 0 0 0 0   rgba(200,132,26,0.8); }
+      70%  { box-shadow: 0 0 0 20px rgba(200,132,26,0);  }
+      100% { box-shadow: 0 0 0 0   rgba(200,132,26,0);   }
+    }
+
     /* Panel toggle button (mobile only) */
     #panel-toggle {
       display: none;
       position: absolute;
       top: 12px; right: 12px;
       z-index: 1001;
-      background: #3D9EC5;
+      background: #1A5276;
       border: none;
       border-radius: 8px;
       width: 44px; height: 44px;
@@ -486,7 +502,7 @@
 
 <!-- ── Highlighted Photos Panel ──────────────────────────────────────────── -->
 <div id="highlights-panel">
-  <h2><span>Highlighted Photos</span><button id="highlights-close">&times;</button></h2>
+  <h2><span class="panel-project">Highlighted Photos</span><button id="highlights-close">&times;</button></h2>
 
   <div id="highlights-list">
   <!-- ================================================================
@@ -500,11 +516,7 @@
     <div class="highlight-thumb"
          onclick="openLightbox('photos_01042026/01042026/IMG_7209.JPG','Madison Square Park — Jan 4, 2026 — Jan 4, 2026 at 1:37:06 PM')">
       <img src="photos_web/jan2026/IMG_7209.jpg" loading="lazy" alt="" />
-      <button class="highlight-locate"
-              onclick="event.stopPropagation();map.flyTo([37.7976139,-122.2671194],19)"
-              title="Snap map to this location">
-        <svg viewBox="0 0 24 24" fill="#D4891A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-      </button>
+      <div class="highlight-minimap" data-lat="37.7976139" data-lng="-122.2671194"></div>
     </div>
     <div class="highlight-label">Madison Square Park</div>
     <div class="highlight-desc"></div>
@@ -514,11 +526,7 @@
     <div class="highlight-thumb"
          onclick="openLightbox('photos_01042026/01042026/IMG_7235.JPG','356 8th St — Jan 4, 2026 — Jan 4, 2026 at 1:45:24 PM')">
       <img src="photos_web/jan2026/IMG_7235.jpg" loading="lazy" alt="" />
-      <button class="highlight-locate"
-              onclick="event.stopPropagation();map.flyTo([37.7994194,-122.2716611],19)"
-              title="Snap map to this location">
-        <svg viewBox="0 0 24 24" fill="#D4891A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-      </button>
+      <div class="highlight-minimap" data-lat="37.7994194" data-lng="-122.2716611"></div>
     </div>
     <div class="highlight-label">356 8th St</div>
     <div class="highlight-desc"></div>
@@ -528,11 +536,7 @@
     <div class="highlight-thumb"
          onclick="openLightbox('photos_01042026/01042026/IMG_7257.JPG','536 8th St — Jan 4, 2026 — Jan 4, 2026 at 1:51:55 PM')">
       <img src="photos_web/jan2026/IMG_7257.jpg" loading="lazy" alt="" />
-      <button class="highlight-locate"
-              onclick="event.stopPropagation();map.flyTo([37.8010611,-122.2759028],19)"
-              title="Snap map to this location">
-        <svg viewBox="0 0 24 24" fill="#D4891A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-      </button>
+      <div class="highlight-minimap" data-lat="37.8010611" data-lng="-122.2759028"></div>
     </div>
     <div class="highlight-label">536 8th St</div>
     <div class="highlight-desc"></div>
@@ -542,11 +546,7 @@
     <div class="highlight-thumb"
          onclick="openLightbox('photos_02042025/02042025/IMG_7222.JPEG','Feb 4, 2025 — Feb 4, 2025 at 9:45:22 AM')">
       <img src="photos_web/feb2025/IMG_7222.jpg" loading="lazy" alt="" />
-      <button class="highlight-locate"
-              onclick="event.stopPropagation();map.flyTo([37.8015222,-122.2770389],19)"
-              title="Snap map to this location">
-        <svg viewBox="0 0 24 24" fill="#D4891A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-      </button>
+      <div class="highlight-minimap" data-lat="37.8015222" data-lng="-122.2770389"></div>
     </div>
     <div class="highlight-label">Feb 4, 2025 survey</div>
     <div class="highlight-desc"></div>
@@ -908,13 +908,68 @@ const highlightsToggle  = document.getElementById('highlights-toggle');
 const highlightsOverlay = document.getElementById('highlights-overlay');
 const highlightsClose   = document.getElementById('highlights-close');
 
-function openHighlights()  { highlightsPanel.classList.add('open');    highlightsOverlay.classList.add('visible'); }
+function openHighlights()  { highlightsPanel.classList.add('open'); highlightsOverlay.classList.add('visible'); setTimeout(() => highlightMiniMaps.forEach(m => m.invalidateSize()), 310); }
 function closeHighlights() { highlightsPanel.classList.remove('open'); highlightsOverlay.classList.remove('visible'); }
 
 highlightsToggle.addEventListener('click',  () =>
   highlightsPanel.classList.contains('open') ? closeHighlights() : openHighlights());
 highlightsOverlay.addEventListener('click', closeHighlights);
 highlightsClose.addEventListener('click',   closeHighlights);
+
+// ── Highlight mini-maps ───────────────────────────────────────────────────────
+const highlightMiniMaps = [];
+const miniPinIcon = L.divIcon({
+  className: '',
+  html: '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="14" viewBox="0 0 10 14"><path d="M5 0C2.24 0 0 2.24 0 5c0 3.75 5 9 5 9s5-5.25 5-9C10 2.24 7.76 0 5 0z" fill="#C8841A" stroke="#fff" stroke-width="1.5"/><circle cx="5" cy="5" r="1.8" fill="#fff"/></svg>',
+  iconSize: [10, 14],
+  iconAnchor: [5, 14]
+});
+const locatorIcon = L.divIcon({
+  className: '',
+  html: '<div class="highlight-locator"></div>',
+  iconSize: [22, 22],
+  iconAnchor: [11, 11]
+});
+
+let highlightLocator = null;
+function flyToHighlight(lat, lng) {
+  if (highlightLocator) { map.removeLayer(highlightLocator); highlightLocator = null; }
+  map.flyTo([lat, lng], 19);
+  highlightLocator = L.marker([lat, lng], { icon: locatorIcon }).addTo(map);
+  // After 3 pulses (3 s) fade out then remove
+  setTimeout(() => {
+    if (!highlightLocator) return;
+    const el = highlightLocator.getElement();
+    if (el) { el.style.transition = 'opacity 0.6s'; el.style.opacity = '0'; }
+    setTimeout(() => { if (highlightLocator) { map.removeLayer(highlightLocator); highlightLocator = null; } }, 650);
+  }, 6000);
+}
+
+document.querySelectorAll('.highlight-minimap').forEach(el => {
+  const lat = parseFloat(el.dataset.lat);
+  const lng = parseFloat(el.dataset.lng);
+
+  const mini = L.map(el, {
+    dragging: false, touchZoom: false, scrollWheelZoom: false,
+    doubleClickZoom: false, keyboard: false,
+    zoomControl: false, attributionControl: false
+  }).setView([lat, lng], 14);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 20, subdomains: 'abcd'
+  }).addTo(mini);
+
+  L.marker([lat, lng], { icon: miniPinIcon }).addTo(mini);
+
+  // Transparent overlay captures clicks so Leaflet doesn't swallow them
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:absolute;inset:0;z-index:1000;cursor:pointer';
+  overlay.title = 'Snap main map to this location';
+  overlay.addEventListener('click', e => { e.stopPropagation(); flyToHighlight(lat, lng); });
+  el.appendChild(overlay);
+
+  highlightMiniMaps.push(mini);
+});
 
 // ── Align compass center with zoom center ─────────────────────────────────────
 function alignCompassWithZoom() {
@@ -940,7 +995,7 @@ function positionHighlightsBelow() {
   const panelRect = panel.getBoundingClientRect();
   const gap    = 8;
   const newTop = panelRect.bottom - mapRect.top + gap;
-  const newH   = mapRect.height - newTop - 12;
+  const newH   = mapRect.height - newTop - 20;
   highlights.style.top    = newTop + 'px';
   highlights.style.height = Math.max(80, newH) + 'px';
 }
