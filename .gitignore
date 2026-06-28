@@ -12,3 +12,6 @@ Thumbs.db
 
 # Source zip archives (photos already extracted to folders)
 *.zip
+
+# Internal setup guide (keep local only)
+SETUP.md
