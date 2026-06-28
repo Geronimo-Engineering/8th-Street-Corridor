@@ -1031,8 +1031,11 @@ function alignCompassWithZoom() {
   const mapEl    = document.getElementById('map');
   const mapRect  = mapEl.getBoundingClientRect();
   const zoomRect = zoomEl.getBoundingClientRect();
-  const zoomCenterY = zoomRect.top - mapRect.top + zoomRect.height / 2;
-  compassEl.style.top    = Math.round(zoomCenterY - compassEl.offsetHeight / 2) + 'px';
+
+  // Stack compass directly above the zoom bar, centered on it
+  const zoomCenterX = zoomRect.left - mapRect.left + zoomRect.width / 2;
+  compassEl.style.left   = Math.round(zoomCenterX - compassEl.offsetWidth / 2) + 'px';
+  compassEl.style.top    = Math.round(zoomRect.top - mapRect.top - compassEl.offsetHeight - 8) + 'px';
   compassEl.style.bottom = 'auto';
 }
 
