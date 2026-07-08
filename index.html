@@ -166,7 +166,7 @@
     .marker-cluster-medium div,
     .marker-cluster-large div  { background-color: rgba(110,204, 57,0.6); }
 
-    /* ── Highlighted Photos panel ───────────────────────────────────── */
+    /* ── Highlighted Photos panel (COMMENTED OUT) ─────────────────────
     #highlights-panel {
       position: absolute;
       top: 300px; right: 12px; left: auto;
@@ -240,7 +240,6 @@
     .highlight-minimap .leaflet-container { background: #e8e0d8; }
     .highlight-minimap .leaflet-control-container { display: none; }
 
-    /* Highlights mobile toggle button */
     #highlights-toggle {
       display: none;
       position: absolute;
@@ -257,7 +256,6 @@
     }
     #highlights-toggle svg { width: 24px; height: 24px; }
 
-    /* Highlights close button (inside panel h2, mobile only) */
     #highlights-close {
       display: none;
       background: none;
@@ -269,7 +267,6 @@
       line-height: 1;
     }
 
-    /* Highlights overlay */
     #highlights-overlay {
       display: none;
       position: fixed;
@@ -279,8 +276,10 @@
       z-index: 999;
     }
     #highlights-overlay.visible { display: block; }
+    */
 
     @media (max-width: 600px) {
+      /* Commenting out mobile styles for highlights panel
       #highlights-toggle { display: flex; }
       #highlights-close  { display: block; }
 
@@ -314,6 +313,47 @@
       .highlight-thumb { height: 130px; }
       .highlight-label { font-size: 13px; }
       .highlight-desc  { font-size: 12px; }
+      */
+
+      #panel-toggle { display: flex; }
+      #panel-close  { display: block; }
+
+      #panel {
+        position: fixed;
+        top: 0; right: 0;
+        height: 100%;
+        width: 280px;
+        border-radius: 0;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+        overflow-y: auto;
+      }
+      #panel.open { transform: translateX(0); }
+      #panel h2 {
+        padding: 14px 16px;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+
+      .layer-row { padding: 10px 16px; min-height: 44px; }
+      .layer-row input { width: 20px; height: 20px; }
+      .layer-row label { font-size: 14px; }
+      .group-label { padding: 10px 16px 4px; font-size: 11px; }
+
+      #search-box { top: auto; bottom: 16px; left: 12px; right: 8px; }
+      #search-input { flex: 1; width: auto; font-size: 16px; padding: 12px 14px; }
+      #search-btn, #clear-search-btn { width: 44px; height: 46px; flex-shrink: 0; }
+      #search-btn svg, #clear-search-btn svg { width: 22px; height: 22px; }
+
+      #compass     { bottom: 73px; left: 50px; width: 52px; height: 52px; }
+      #compass-inner { width: 40px; height: 40px; }
+
+      #lightbox-close { top: 12px; right: 12px; width: 48px; height: 48px; font-size: 36px; }
+      #lightbox-caption { bottom: 16px; font-size: 13px; padding: 10px 16px; max-width: 90%; text-align: center; white-space: normal; }
+
+      .leaflet-popup-content { font-size: 14px !important; min-width: 180px; }
     }
 
     /* Lightbox */
@@ -408,7 +448,7 @@
       100% { box-shadow: 0 0 0 0   rgba(231,76,60,0);    }
     }
 
-    /* Highlight flyto locator */
+    /* Highlight flyto locator (COMMENTED OUT)
     .highlight-locator {
       width: 22px; height: 22px;
       background: #C8841A;
@@ -422,6 +462,7 @@
       70%  { box-shadow: 0 0 0 20px rgba(200,132,26,0);  }
       100% { box-shadow: 0 0 0 0   rgba(200,132,26,0);   }
     }
+    */
 
     /* Panel toggle button (mobile only) */
     #panel-toggle {
@@ -450,123 +491,12 @@
       z-index: 999;
     }
     #panel-overlay.visible { display: block; }
-
-    /* Mobile styles */
-    @media (max-width: 600px) {
-      #panel-toggle { display: flex; }
-      #panel-close  { display: block; }
-
-      #panel {
-        position: fixed;
-        top: 0; right: 0;
-        height: 100%;
-        width: 280px;
-        border-radius: 0;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        z-index: 1000;
-        overflow-y: auto;
-      }
-      #panel.open { transform: translateX(0); }
-      #panel h2 {
-        padding: 14px 16px;
-        position: sticky;
-        top: 0;
-        z-index: 1;
-      }
-
-      .layer-row { padding: 10px 16px; min-height: 44px; }
-      .layer-row input { width: 20px; height: 20px; }
-      .layer-row label { font-size: 14px; }
-      .group-label { padding: 10px 16px 4px; font-size: 11px; }
-
-      #search-box { top: auto; bottom: 16px; left: 12px; right: 8px; }
-      #search-input { flex: 1; width: auto; font-size: 16px; padding: 12px 14px; }
-      #search-btn, #clear-search-btn { width: 44px; height: 46px; flex-shrink: 0; }
-      #search-btn svg, #clear-search-btn svg { width: 22px; height: 22px; }
-
-      #compass     { bottom: 73px; left: 50px; width: 52px; height: 52px; }
-      #compass-inner { width: 40px; height: 40px; }
-
-
-      #lightbox-close { top: 12px; right: 12px; width: 48px; height: 48px; font-size: 36px; }
-      #lightbox-caption { bottom: 16px; font-size: 13px; padding: 10px 16px; max-width: 90%; text-align: center; white-space: normal; }
-
-      .leaflet-popup-content { font-size: 14px !important; min-width: 180px; }
-    }
   </style>
 </head>
 <body>
 
 <div id="map"></div>
 
-<!-- ── Highlighted Photos Panel ──────────────────────────────────────────── -->
-<div id="highlights-panel">
-  <h2><span class="panel-project">Highlighted Photos</span><button id="highlights-close">&times;</button></h2>
-
-  <div id="highlights-list">
-  <!-- ================================================================
-       EDIT HIGHLIGHTED PHOTOS HERE — add or remove cards freely,
-       the panel scrolls automatically for any number of photos.
-       Each card: click thumbnail → lightbox (full-res),
-       pin button → map snaps to that location.
-       ================================================================ -->
-
-  <div class="highlight-card">
-    <div class="highlight-thumb"
-         onclick="openLightbox('photos_01042026/01042026/IMG_7209.JPG','Madison Square Park — Jan 4, 2026 — Jan 4, 2026 at 1:37:06 PM')">
-      <img src="photos_web/jan2026/IMG_7209.jpg" loading="lazy" alt="" />
-      <div class="highlight-minimap" data-lat="37.7976139" data-lng="-122.2671194"></div>
-    </div>
-    <div class="highlight-label">Madison Square Park</div>
-    <div class="highlight-desc"></div>
-  </div>
-
-  <div class="highlight-card">
-    <div class="highlight-thumb"
-         onclick="openLightbox('photos_01042026/01042026/IMG_7235.JPG','356 8th St — Jan 4, 2026 — Jan 4, 2026 at 1:45:24 PM')">
-      <img src="photos_web/jan2026/IMG_7235.jpg" loading="lazy" alt="" />
-      <div class="highlight-minimap" data-lat="37.7994194" data-lng="-122.2716611"></div>
-    </div>
-    <div class="highlight-label">356 8th St</div>
-    <div class="highlight-desc"></div>
-  </div>
-
-  <div class="highlight-card">
-    <div class="highlight-thumb"
-         onclick="openLightbox('photos_01042026/01042026/IMG_7257.JPG','536 8th St — Jan 4, 2026 — Jan 4, 2026 at 1:51:55 PM')">
-      <img src="photos_web/jan2026/IMG_7257.jpg" loading="lazy" alt="" />
-      <div class="highlight-minimap" data-lat="37.8010611" data-lng="-122.2759028"></div>
-    </div>
-    <div class="highlight-label">536 8th St</div>
-    <div class="highlight-desc"></div>
-  </div>
-
-  <div class="highlight-card">
-    <div class="highlight-thumb"
-         onclick="openLightbox('photos_02042025/02042025/IMG_7222.JPEG','Feb 4, 2025 — Feb 4, 2025 at 9:45:22 AM')">
-      <img src="photos_web/feb2025/IMG_7222.jpg" loading="lazy" alt="" />
-      <div class="highlight-minimap" data-lat="37.8015222" data-lng="-122.2770389"></div>
-    </div>
-    <div class="highlight-label">Feb 4, 2025 survey</div>
-    <div class="highlight-desc"></div>
-  </div>
-
-  </div><!-- end #highlights-list -->
-</div><!-- end #highlights-panel -->
-
-<!-- Mobile highlights toggle -->
-<button id="highlights-toggle" title="Highlighted photos">
-  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-    <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-  </svg>
-</button>
-
-<!-- Highlights overlay -->
-<div id="highlights-overlay"></div>
-
-<!-- Mobile panel toggle -->
 <button id="panel-toggle" title="Toggle layers">
   <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
     <polygon points="12 2 2 7 12 12 22 7 12 2"/>
@@ -575,17 +505,14 @@
   </svg>
 </button>
 
-<!-- Mobile panel overlay -->
 <div id="panel-overlay"></div>
 
-<!-- Lightbox -->
 <div id="lightbox" onclick="closeLightbox()">
   <span id="lightbox-close">&times;</span>
   <img id="lightbox-img" src="" alt="Field Photo" />
   <div id="lightbox-caption"></div>
 </div>
 
-<!-- Floating search bar -->
 <div id="search-box">
   <input type="text" id="search-input" placeholder="Address or coordinates (lat, lng)" />
   <button id="search-btn" title="Search">
@@ -608,7 +535,6 @@
     <span class="needle-label">N</span>
   </div>
 </div>
-
 
 <div id="panel">
   <h2>
@@ -954,7 +880,8 @@ panelToggle.addEventListener('click', () =>
 panelOverlay.addEventListener('click', closePanel);
 panelClose.addEventListener('click', closePanel);
 
-// ── Mobile highlights panel ───────────────────────────────────────────────────
+// ── Mobile highlights panel (COMMENTED OUT) ───────────────────────────────────
+/*
 const highlightsPanel   = document.getElementById('highlights-panel');
 const highlightsToggle  = document.getElementById('highlights-toggle');
 const highlightsOverlay = document.getElementById('highlights-overlay');
@@ -967,8 +894,10 @@ highlightsToggle.addEventListener('click',  () =>
   highlightsPanel.classList.contains('open') ? closeHighlights() : openHighlights());
 highlightsOverlay.addEventListener('click', closeHighlights);
 highlightsClose.addEventListener('click',   closeHighlights);
+*/
 
-// ── Highlight mini-maps ───────────────────────────────────────────────────────
+// ── Highlight mini-maps (COMMENTED OUT) ───────────────────────────────────────
+/*
 const highlightMiniMaps = [];
 const miniPinIcon = L.divIcon({
   className: '',
@@ -988,7 +917,6 @@ function flyToHighlight(lat, lng) {
   if (highlightLocator) { map.removeLayer(highlightLocator); highlightLocator = null; }
   map.flyTo([lat, lng], 19);
   highlightLocator = L.marker([lat, lng], { icon: locatorIcon }).addTo(map);
-  // After 3 pulses (3 s) fade out then remove
   setTimeout(() => {
     if (!highlightLocator) return;
     const el = highlightLocator.getElement();
@@ -1013,7 +941,6 @@ document.querySelectorAll('.highlight-minimap').forEach(el => {
 
   L.marker([lat, lng], { icon: miniPinIcon }).addTo(mini);
 
-  // Transparent overlay captures clicks so Leaflet doesn't swallow them
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:absolute;inset:0;z-index:1000;cursor:pointer';
   overlay.title = 'Snap main map to this location';
@@ -1022,6 +949,7 @@ document.querySelectorAll('.highlight-minimap').forEach(el => {
 
   highlightMiniMaps.push(mini);
 });
+*/
 
 // ── Align compass center with zoom center ─────────────────────────────────────
 function alignCompassWithZoom() {
@@ -1032,14 +960,14 @@ function alignCompassWithZoom() {
   const mapRect  = mapEl.getBoundingClientRect();
   const zoomRect = zoomEl.getBoundingClientRect();
 
-  // Stack compass directly above the zoom bar, centered on it
   const zoomCenterX = zoomRect.left - mapRect.left + zoomRect.width / 2;
   compassEl.style.left   = Math.round(zoomCenterX - compassEl.offsetWidth / 2) + 'px';
   compassEl.style.top    = Math.round(zoomRect.top - mapRect.top - compassEl.offsetHeight - 8) + 'px';
   compassEl.style.bottom = 'auto';
 }
 
-// ── Position highlights panel directly below legend panel ────────────────────
+// ── Position highlights panel directly below legend panel (COMMENTED OUT) ────
+/*
 function positionHighlightsBelow() {
   if (window.innerWidth <= 600) return;
   const panel      = document.getElementById('panel');
@@ -1054,9 +982,10 @@ function positionHighlightsBelow() {
   highlights.style.top    = newTop + 'px';
   highlights.style.height = Math.max(80, newH) + 'px';
 }
+*/
 
-setTimeout(() => { alignCompassWithZoom(); positionHighlightsBelow(); }, 200);
-window.addEventListener('resize', () => { alignCompassWithZoom(); positionHighlightsBelow(); });
+setTimeout(() => { alignCompassWithZoom(); /* positionHighlightsBelow(); */ }, 200);
+window.addEventListener('resize', () => { alignCompassWithZoom(); /* positionHighlightsBelow(); */ });
 </script>
 </body>
 </html>
